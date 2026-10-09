@@ -1,0 +1,23 @@
+[application]
+
+[web.app]
+
+title = "busymonkey"
+
+[web.resource]
+
+style = []
+
+script = []
+
+[web.resource.dev]
+
+script = []
+
+[bundle]
+identifier = "ru.mkn"
+publisher = "Vasily Fedorov"
+icon = ["assets/favicon.ico"]
+
+[bundle.windows]
+icon_path = "assets/favicon.ico"

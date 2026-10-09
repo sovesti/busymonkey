@@ -1,0 +1,31 @@
+{
+  "base_keymap": "VSCode",
+  "format_on_save": "on",
+  "features": {
+    "edit_prediction_provider": "none"
+  },
+  "telemetry": {
+    "metrics": false,
+    "diagnostics": false
+  },
+  "agent": {
+    "enabled": false
+  },
+  "languages": {
+    "Rust": {
+      "code_actions_on_format": {
+        "source.removeUnusedImports": true,
+        "source.organizeImports": true
+      }
+    }
+  },
+  "lsp": {
+    "rust-analyzer": {
+      "initialization_options": {
+        "cargo": {
+          "features": ["desktop"]
+        }
+      }
+    }
+  }
+}

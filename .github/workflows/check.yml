@@ -1,0 +1,39 @@
+name: Check
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  build-all:
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-pc-windows-msvc
+          - x86_64-unknown-linux-gnu
+          - wasm32-unknown-unknown
+        include:
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            feature: desktop
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            feature: server
+          - target: wasm32-unknown-unknown
+            os: ubuntu-latest
+            feature: web
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+      - name: Check project
+        run: cargo check --features ${{ matrix.feature }}
+      - name: Run tests
+        if: matrix.feature == 'server'
+        run: cargo test --features test
