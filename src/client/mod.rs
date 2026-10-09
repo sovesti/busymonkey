@@ -3,7 +3,8 @@ mod scripts;
 
 use dioxus::prelude::*;
 
-use crate::ui::{auth::AuthView, scripts::ScriptsView};
+use auth::AuthView;
+use scripts::ScriptsView;
 
 pub fn app() -> Element {
     let authorized = use_signal(|| false);
