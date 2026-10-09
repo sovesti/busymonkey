@@ -8,8 +8,8 @@ use dioxus_fullstack::routing::Router;
 use dioxus_server::axum::Extension;
 
 use crate::{
+    client::app,
     server::config::Config,
-    ui::app,
     user::server::{auth, users::DynUsers},
 };
 
