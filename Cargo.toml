@@ -20,14 +20,14 @@ tokio = { version = "1.53.1", features = ["fs", "macros", "rt-multi-thread"], op
 toml = { version = "1.1.5", optional = true }
 tower = { version = "0.5.3", optional = true }
 tower-http = { version = "0.7.1", optional = true }
-wasm-timer = "0.2.5"
+wasmtimer = "0.4.3"
 
 [dev-dependencies]
 axum-test = "21.1.0"
 
 [features]
 web = ["dioxus/web"]
-desktop = ["dioxus/desktop"]
+desktop = ["dioxus/desktop", "tokio"]
 server = [
     "dioxus/server",
     "async-trait",

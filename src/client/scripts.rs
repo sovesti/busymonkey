@@ -1,10 +1,11 @@
 use dioxus::prelude::*;
 
-use crate::monkey::script::dummy::start_script;
+use crate::monkey::script::start_script;
 
 #[component]
 pub fn ScriptsView() -> Element {
     let script = use_action(start_script);
+    #[cfg(feature = "desktop")]
     use_shortcut_on_desktop(script);
     rsx! {
         p {
@@ -19,20 +20,17 @@ pub fn ScriptsView() -> Element {
     }
 }
 
-fn use_shortcut_on_desktop(script: Action<(), ()>) {
-    #[cfg(feature = "desktop")]
+#[cfg(feature = "desktop")]
+fn use_shortcut_on_desktop(mut script: Action<(), ()>) {
     dioxus::desktop::use_global_shortcut(KeyCode::Space, move |st| {
-        if st == dioxus::desktop::HotKeyState::Pressed {
-            toggle_script(script)
+        if st == dioxus::desktop::HotKeyState::Released {
+            return;
+        }
+        if script.pending() {
+            script.cancel();
+        } else {
+            script.call();
         }
     })
     .unwrap();
-}
-
-fn toggle_script(mut script: Action<(), ()>) {
-    if script.pending() {
-        script.cancel();
-    } else {
-        script.call();
-    }
 }

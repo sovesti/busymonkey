@@ -1,9 +1,20 @@
-pub use enigo::agent::Agent;
+#[cfg(feature = "web")]
+mod web;
+
+pub use enigo::{Keyboard, Mouse, agent::Agent};
 
 pub trait MonkeyEngine: Agent {}
 
-impl MonkeyEngine for enigo::Enigo {}
+impl<T: Agent> MonkeyEngine for T {}
 
+#[cfg(any(feature = "desktop", feature = "web"))]
 pub fn default_engine() -> anyhow::Result<impl MonkeyEngine> {
-    Ok(enigo::Enigo::new(&enigo::Settings::default())?)
+    #[cfg(feature = "desktop")]
+    {
+        Ok(enigo::Enigo::new(&enigo::Settings::default())?)
+    }
+    #[cfg(feature = "web")]
+    {
+        Ok(web::BrowserMonkeyEngine {})
+    }
 }

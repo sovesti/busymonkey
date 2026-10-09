@@ -1,8 +1,6 @@
-use std::{
-    collections::VecDeque,
-    f64::consts::PI,
-    time::{Duration, Instant},
-};
+use std::{collections::VecDeque, f64::consts::PI, time::Duration};
+
+use super::Instant;
 
 use crate::monkey::{
     engine::{self, Agent},
@@ -27,7 +25,7 @@ impl Default for DummyState {
 impl DummyState {
     fn increment(&mut self) {
         self.position += 1;
-        self.updated += Duration::from_millis(20);
+        self.updated = self.updated + Duration::from_millis(20);
     }
 
     fn move_to(&self) -> Token {
@@ -65,7 +63,7 @@ impl MonkeyScript for DummyScript {
     }
 }
 
-pub async fn start_script() -> anyhow::Result<()> {
+pub async fn start_dummy_script() -> anyhow::Result<()> {
     let mut script = DummyScript::default();
     let mut engine = engine::default_engine()?;
     loop {
@@ -74,7 +72,7 @@ pub async fn start_script() -> anyhow::Result<()> {
             continue;
         }
         if let Some(time) = script.poll_timeout() {
-            wasm_timer::Delay::new_at(time).await?;
+            crate::monkey::sleep_until(time).await;
         }
         script.handle_timeout(Instant::now());
     }
