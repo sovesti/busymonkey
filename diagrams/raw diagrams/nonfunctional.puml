@@ -1,0 +1,97 @@
+@startuml nonfunctional
+allowmixing
+!pragma layout smetana
+left to right direction
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 10
+skinparam ArrowColor #64748B
+skinparam classAttributeIconSize 0
+skinparam nodesep 30
+skinparam ranksep 40
+skinparam class {
+  BackgroundColor #F0FDFA
+  BorderColor #0D9488
+  FontColor #0F172A
+}
+skinparam component {
+  BackgroundColor #EFF6FF
+  BorderColor #2563EB
+}
+
+component "Busy Monkey\nMVP и последующие итерации" as Product
+
+package "Качество работы" {
+  class "NFR-01\nОтзывчивость" as N01 <<ограничение>> {
+    {p95 остановки <= 500 мс}
+    {100 измерений на стенде}
+  }
+  class "NFR-02\nНадёжность" as N02 <<ограничение>> {
+    {10 сеансов по 2 ч без зависаний}
+    {не более 1 активного сценария}
+  }
+  class "NFR-03\nПроизводительность" as N03 <<ограничение>> {
+    {CPU <= 2% за 10 мин}
+    {рост private bytes <= 10 МБ / 2 ч}
+  }
+  class "NFR-04\nУдобство" as N04 <<ограничение>> {
+    {>= 9 из 10 новых пользователей}
+    {первый запуск <= 60 с}
+  }
+}
+
+package "Данные и безопасность" {
+  class "NFR-05\nПриватность" as N05 <<ограничение>> {
+    {нет отправки ввода и координат}
+    {история хранится локально}
+  }
+  class "NFR-06\nБезопасность" as N06 <<ограничение>> {
+    {нет секретов в логах}
+    {ошибки разрешений без аварии}
+    {HTTPS для внешнего сервера, если есть}
+  }
+  class "NFR-11\nБезопасное выполнение" as N11 <<ограничение>> {
+    {после остановки новых событий нет}
+    {нет утечки ввода при сбое}
+  }
+}
+
+package "Совместимость и поставка" {
+  class "NFR-07\nПлатформы" as N07 <<ограничение>> {
+    {MVP: Windows 11 x64}
+    {после MVP: Windows 10 / Linux / macOS}
+  }
+  class "NFR-08\nВоспроизводимость" as N08 <<ограничение>> {
+    {Cargo.lock + --locked}
+    {описаны версии и команды сборки}
+  }
+  class "NFR-09\nБраузеры" as N09 <<ограничение>> {
+    {проверка на целевых версиях}
+    {отказ с понятной ошибкой}
+  }
+  class "NFR-10\nПереносимость" as N10 <<ограничение>> {
+    {формат с версией}
+    {невалидный импорт не портит данные}
+  }
+}
+
+Product ..> N01
+Product ..> N02
+Product ..> N03
+Product ..> N04
+Product ..> N05
+Product ..> N06
+Product ..> N07
+Product ..> N08
+Product ..> N09
+Product ..> N10
+Product ..> N11
+
+legend bottom
+  NFR = нефункциональное требование.
+  <<ограничение>> - пользовательский стереотип UML, не отдельная диаграмма SysML.
+  Целевые значения предварительные; способы проверки указаны в nonfunctional.md.
+endlegend
+@enduml
