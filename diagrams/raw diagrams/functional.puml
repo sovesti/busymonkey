@@ -1,0 +1,76 @@
+@startuml functional
+!pragma layout smetana
+left to right direction
+skinparam defaultFontName Arial
+skinparam defaultFontSize 14
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam ArrowColor #64748B
+skinparam packageStyle rectangle
+skinparam nodesep 35
+skinparam ranksep 45
+skinparam usecase {
+  BackgroundColor #EFF6FF
+  BorderColor #2563EB
+  FontColor #0F172A
+}
+skinparam actor {
+  BorderColor #334155
+  FontColor #0F172A
+}
+
+actor "Пользователь" as User
+actor "Таймер" as Timer <<системное событие>>
+
+rectangle "Busy Monkey" {
+  package "MVP: Windows 11 x64 / Linux" as MVP {
+    usecase "FR-01\nНастроить параметры\nмыши и интервалов" as FR01
+    usecase "FR-02\nЗапустить сценарий" as FR02
+    usecase "FR-03\nОстановить сценарий\nкнопкой / клавишей" as FR03
+    usecase "FR-04\nПосмотреть статус\nи оставшееся время" as FR04
+    usecase "FR-05\nЗавершить сценарий\nпо таймеру" as FR05
+    usecase "FR-06\nСохранить и загрузить\nлокальные настройки" as FR06
+    usecase "FR-07\nЗапустить базовый сценарий\nбез сети и авторизации" as FR07
+    usecase "FR-12\nНастроить действия\nклавиатуры" as FR12
+  }
+
+  package "После MVP: этапы 3-5 и отдельно" as AfterMVP {
+    usecase "FR-08\nПриостановить при реальном\nвводе и возобновить" as FR08
+    usecase "FR-09\nУправлять профилями" as FR09
+    usecase "FR-10\nПросмотреть локальную\nисторию сеансов" as FR10
+    usecase "FR-11\nЗаписать и воспроизвести\nразрешённые действия" as FR11
+    usecase "FR-13\nПросмотреть, выбрать\nи проверить шаблон" as FR13
+    usecase "FR-14\nПриостановить, возобновить\nи обработать сбой" as FR14
+    usecase "FR-15\nНастроить разрешённые\nдействия в браузере" as FR15
+    usecase "FR-16\nИмпортировать и экспортировать\nнастройки и шаблоны" as FR16
+  }
+
+  ' Скрытая связь задаёт предпочтительный порядок групп.
+  MVP -[hidden]down-> AfterMVP
+}
+
+User -- FR01
+User -- FR02
+User -- FR03
+User -- FR04
+User -- FR06
+User -- FR07
+User -- FR12
+User -- FR08
+User -- FR09
+User -- FR10
+User -- FR11
+User -- FR13
+User -- FR14
+User -- FR15
+User -- FR16
+Timer -- FR05
+
+legend bottom
+  FR = функциональное требование; линии показывают участие, а не порядок действий.
+  MVP = этап 2 дорожной карты; последующие функции = этапы 3-5.
+  FR-10 (локальная история) требует отдельного согласования в roadmap.
+  Проверяемые критерии приёмки приведены в functional.md.
+endlegend
+@enduml
