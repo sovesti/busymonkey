@@ -1,0 +1,45 @@
+
+@startuml
+title Anti Time Tracker — Competitive Matrix
+!theme plain
+skinparam backgroundColor white
+skinparam defaultFontName Arial
+skinparam shadowing false
+
+legend bottom
+  🔴 Простой jiggler / keep-awake
+  🟠 Имитация активности для time tracking
+  🟡 Общая автоматизация активности
+  🔵 Anti Time Tracker — целевой продукт
+  ? — не подтверждено
+endlegend
+
+salt
+{
+{#
+Продукт | Тип | Мышь | Клавиатура / скролл | Сценарии | Контекст / браузер
+🔴 Caffeine | Keep-awake | Нет | F15 | Нет | Нет
+🔴 Mouse Jiggler (Arkane) | Jiggler | Круг / линия | Нет | Режимы | Нет
+🟠 AFK-Assistant | Activity sim. | Вариативные | Да | Настройки активности | Переключение вкладок / приложений
+🟠 Mouse Jiggler (commercial) | Activity sim. | Да | Да | Настраиваемые | Переключение вкладок / приложений
+🟠 AwaySitter | Presence tool | Плавные кривые | F15 / скролл | Нет | Нет
+🟡 Move Mouse | Automation | Да | Да | Действия / условия | Общие условия
+🔵 Anti Time Tracker | Target | План | План | Шаблоны | Браузерная интеграция
+}
+}
+
+salt
+{
+{#
+Продукт | Облако | Фоновый режим | Сохранение настроек | Заявленное назначение
+🔴 Caffeine | Нет | Да | Базовое | Предотвращение сна
+🔴 Mouse Jiggler (Arkane) | Нет | Трей | Да | Предотвращение простоя
+🟠 AFK-Assistant | Не подтверждено | Да | Настройки | Имитация активности для time tracking
+🟠 Mouse Jiggler (commercial) | ? | Да | Да | Имитация активности за компьютером
+🟠 AwaySitter | Нет | Трей | Локально | Поддержание статуса активности
+🟡 Move Mouse | ? | Трей | Конфигурации | Автоматизация действий
+🔵 Anti Time Tracker | Решить | План | План | Сценарии и аналитика
+}
+}
+
+@enduml

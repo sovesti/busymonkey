@@ -1,0 +1,36 @@
+
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Пользователь" as User
+
+rectangle "Anti Time Tracker" {
+  usecase "Просмотреть шаблоны" as UC1
+  usecase "Выбрать шаблон" as UC2
+  usecase "Настроить параметры" as UC3
+  usecase "Проверить шаблон" as UC4
+  usecase "Запустить сценарий" as UC5
+  usecase "Остановить сценарий" as UC6
+  usecase "Просмотреть результат" as UC7
+  usecase "Управлять настройками" as UC8
+  usecase "Настроить браузерную интеграцию" as UC9
+  usecase "Экспортировать настройки" as UC10
+}
+
+User --> UC1
+User --> UC2
+User --> UC3
+User --> UC4
+User --> UC5
+User --> UC6
+User --> UC7
+User --> UC8
+User --> UC9
+User --> UC10
+
+UC5 .> UC4 : <<include>>
+UC3 .> UC2 : <<extend>>
+
+@enduml
