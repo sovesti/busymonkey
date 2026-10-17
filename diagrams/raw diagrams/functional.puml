@@ -24,7 +24,7 @@ actor "Пользователь" as User
 actor "Таймер" as Timer <<системное событие>>
 
 rectangle "Busy Monkey" {
-  package "MVP: Windows 11 x64 / Linux" as MVP {
+  package "MVP: Windows 11 x64" as MVP {
     usecase "FR-01\nНастроить параметры\nмыши и интервалов" as FR01
     usecase "FR-02\nЗапустить сценарий" as FR02
     usecase "FR-03\nОстановить сценарий\nкнопкой / клавишей" as FR03
