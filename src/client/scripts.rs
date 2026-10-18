@@ -6,9 +6,45 @@ use crate::monkey::script::start_script;
 enum ShortcutAction {
     ToggleScript,
 }
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct ShortcutKeys {
+    code: Code,
+    modifiers: Modifiers,
+}
+
+impl ShortcutKeys {
+    fn to_label(&self) -> String {
+        let mut label = String::new();
+
+        if self.modifiers.contains(Modifiers::CONTROL) {
+            label.push_str("Ctrl + ");
+        }
+
+        if self.modifiers.contains(Modifiers::SHIFT) {
+            label.push_str("Shift + ");
+        }
+
+        if self.modifiers.contains(Modifiers::ALT) {
+            label.push_str("Alt + ");
+        }
+
+        let code = self.code.to_string();
+
+        let key = code
+            .strip_prefix("Key")
+            .or(code.strip_prefix("Digit"))
+            .unwrap_or(code.as_str());
+
+        label.push_str(key);
+
+        label
+    }
+}
+
 #[derive(Clone)]
 struct ShortcutBinding {
-    keys: String,
+    keys: ShortcutKeys,
     action: ShortcutAction,
 }
 
@@ -21,15 +57,27 @@ pub fn ScriptsView() -> Element {
     let mut shortcuts = use_signal(|| {
         vec![
             ShortcutBinding {
-                keys: String::from("Space"),
+                keys: ShortcutKeys {
+                    code: Code::Space,
+                    modifiers: Modifiers::empty(),
+                },
                 action: ShortcutAction::ToggleScript,
             },
         ]
     });
 
-    let mut new_shortcut = use_signal(|| String::new());
+    let mut captured_keys = use_signal(|| None::<ShortcutKeys>);
 
     rsx! {
+
+        style {
+            ".shortcut-input:focus {{
+                outline: 2px solid #2563eb;
+                outline-offset: 2px;
+                border-color: #2563eb;
+            }}"
+        }
+
         h2 {
             "Keyboard Shortcuts"
         }
@@ -47,7 +95,9 @@ pub fn ScriptsView() -> Element {
             tbody {
                 for (index, binding) in shortcuts().into_iter().enumerate() {
                     tr {
-                        td { "{binding.keys}" }
+                        td {
+                            {binding.keys.to_label()}
+                        }
 
                         td {
                             select {
@@ -86,73 +136,61 @@ pub fn ScriptsView() -> Element {
         }
 
         input {
+            class: "shortcut-input",
+
             style: "width: 220px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-right: 10px; box-sizing: border-box;",
 
             placeholder: "Enter shortcut",
-            value: new_shortcut(),
+            value: match captured_keys() {
+                Some(keys) => keys.to_label(),
+                None => String::new(),
+            },
             readonly: true,
             onkeydown: move |event| {
-                let modifiers = event.modifiers();
+                let code = event.code();
+                let code_text = code.to_string();
 
-                let ctrl = modifiers.contains(Modifiers::CONTROL);
-                let shift = modifiers.contains(Modifiers::SHIFT);
-                let alt = modifiers.contains(Modifiers::ALT);
-                let mut combination = String::new();
-
-                if ctrl {
-                    combination.push_str("Ctrl + ");
-                }
-
-                if shift {
-                    combination.push_str("Shift + ");
-                }
-
-                if alt {
-                    combination.push_str("Alt + ");
-                }
-
-                let code = event.code().to_string();
-
-                let symbol = code
+                let symbol = code_text
                     .strip_prefix("Key")
-                    .or(code.strip_prefix("Digit"));
+                    .or(code_text.strip_prefix("Digit"));
 
                 let mut recognized = false;
 
                 if let Some(symbol) = symbol {
                     if symbol.len() == 1 {
-                        combination.push_str(symbol);
                         recognized = true;
                     }
-                } else if code == "Enter" {
-                    combination.push_str("Enter");
+                } else if code_text == "Enter"
+                    || code_text == "Space"
+                    || code_text == "Escape"
+                {
                     recognized = true;
-                } else if code == "Space" {
-                    combination.push_str("Space");
-                    recognized = true;
-                } else if code == "Escape" {
-                    combination.push_str("Escape");
-                    recognized = true;
-                } else if let Some(number) = code.strip_prefix("F") {
+                } else if let Some(number) = code_text.strip_prefix("F") {
                     if let Ok(n) = number.parse::<u8>() {
                         if (1..=12).contains(&n) {
-                            combination.push_str(&code);
                             recognized = true;
                         }
                     }
                 }
 
                 if recognized {
-                    new_shortcut.set(combination);
-                }
+                    let modifiers = event.modifiers()
+                        & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
 
+                    let keys = ShortcutKeys {
+                        code,
+                        modifiers,
+                    };
+
+                    captured_keys.set(Some(keys));
+                }
             }
         }
         button {
             style: "background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; cursor: pointer; margin-right: 10px;",
 
             onclick: move |_| {
-                new_shortcut.set(String::new());
+                captured_keys.set(None);
             },
 
             "Clear"
@@ -162,23 +200,22 @@ pub fn ScriptsView() -> Element {
             style: "background-color: #2563eb; color: white; border: none; border-radius: 6px; padding: 8px 14px; cursor: pointer;",
 
             onclick: move |_| {
-            let text = new_shortcut();
-            let cleaned = text.trim();
+                if let Some(keys) = captured_keys() {
+                    let exists = shortcuts
+                        .read()
+                        .iter()
+                        .any(|binding| binding.keys == keys);
 
-            let exists = shortcuts
-                .read()
-                .iter()
-                .any(|binding| binding.keys.as_str() == cleaned);
+                    if !exists {
+                        shortcuts.write().push(ShortcutBinding {
+                            keys,
+                            action: ShortcutAction::ToggleScript,
+                        });
 
-            if !cleaned.is_empty() && !exists {
-                shortcuts.write().push(ShortcutBinding {
-                    keys: cleaned.to_string(),
-                    action: ShortcutAction::ToggleScript,
-                });
-
-                new_shortcut.set(String::new());
-            }
-        },
+                        captured_keys.set(None);
+                    }
+                }
+            },
             "Add Shortcut"
         }
 
