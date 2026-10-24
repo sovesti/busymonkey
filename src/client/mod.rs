@@ -11,7 +11,7 @@ use auth::AuthView;
 use scripts::ScriptsView;
 
 pub fn app() -> Element {
-    let authorized = use_signal(|| true);
+    let authorized = use_signal(|| false);
     rsx! {
         document::Link { rel: "icon", href: asset!("/assets/favicon.ico") },
         Stylesheet { href: asset!("/assets/dx-components-theme.css") },
