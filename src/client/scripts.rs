@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::client::settings::{Settings, registry::ScriptSettingsRegistry};
+use crate::monkey::model::parameters::ScriptFactory;
 use crate::monkey::script::start_script;
 
 #[derive(Clone)]
@@ -51,10 +52,6 @@ struct ShortcutBinding {
 
 #[component]
 pub fn ScriptsView() -> Element {
-    let script = use_action(start_script);
-    #[cfg(feature = "desktop")]
-    use_shortcut_on_desktop(script);
-
     let mut shortcuts = use_signal(|| {
         vec![ShortcutBinding {
             keys: ShortcutKeys {
@@ -66,10 +63,15 @@ pub fn ScriptsView() -> Element {
     });
 
     let mut captured_keys = use_signal(|| None::<ShortcutKeys>);
-    provide_context(use_signal(ScriptSettingsRegistry::new));
+    let registry = provide_context(use_signal(ScriptSettingsRegistry::new));
+    let factory = inventory::iter::<ScriptFactory>.into_iter().next().unwrap();
+    let script =
+        use_action(move || start_script(factory.create_from_data(registry().current_settings())));
+    #[cfg(feature = "desktop")]
+    use_shortcut_on_desktop(script);
 
     rsx! {
-        Settings {},
+        Settings { params: factory.create() },
         style {
             ".shortcut-input:focus {{
                 outline: 2px solid #2563eb;
