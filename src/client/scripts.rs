@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
+use crate::client::settings::persistence::{provide_settings, use_settings};
 use crate::client::settings::{Settings, registry::ScriptSettingsRegistry};
-use crate::monkey::model::parameters::ScriptFactory;
 use crate::monkey::script::start_script;
 
 #[derive(Clone)]
@@ -63,15 +63,12 @@ pub fn ScriptsView() -> Element {
     });
 
     let mut captured_keys = use_signal(|| None::<ShortcutKeys>);
-    let registry = provide_context(use_signal(ScriptSettingsRegistry::new));
-    let factory = inventory::iter::<ScriptFactory>.into_iter().next().unwrap();
-    let script =
-        use_action(move || start_script(factory.create_from_data(registry().current_settings())));
+    provide_settings::<ScriptSettingsRegistry>();
     #[cfg(feature = "desktop")]
-    use_shortcut_on_desktop(script);
+    use_shortcut_on_desktop(use_start_script());
 
     rsx! {
-        Settings { params: factory.create() },
+        Settings {},
         style {
             ".shortcut-input:focus {{
                 outline: 2px solid #2563eb;
@@ -224,13 +221,23 @@ pub fn ScriptsView() -> Element {
         p {
             "Press space to toggle a script"
         },
-        if let Some(Err(err)) = script.value() {
+        if let Some(Err(err)) = use_start_script().value() {
             p {
                 class: "text-red",
                 {err.to_string()}
             }
         }
     }
+}
+
+fn use_start_script() -> Action<(), ()> {
+    use_action(move || async move {
+        if let Some(registry) = *use_settings::<ScriptSettingsRegistry>().read() {
+            start_script(registry.read().create_with_settings()).await
+        } else {
+            Ok(())
+        }
+    })
 }
 
 #[cfg(feature = "desktop")]

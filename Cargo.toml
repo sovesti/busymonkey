@@ -16,6 +16,7 @@ dioxus-primitives = { git = "https://github.com/DioxusLabs/components", version 
 directories = { version = "6.0.0", optional = true }
 enigo = { version = "0.6.1" }
 inventory = "0.3.25"
+image = { version = "0.25.10", default-features = false, features = ["ico"] }
 password-auth = { version = "1.0.0", optional = true }
 rand = { version = "0.10.3" }
 serde = { version = "1.0.229", features = ["derive"] }
@@ -30,6 +31,7 @@ toml = { version = "1.1.5", optional = true }
 tower = { version = "0.5.3", optional = true }
 tower-http = { version = "0.7.1", optional = true }
 wasmtimer = "0.4.3"
+dioxus-icons = { version = "0.1.0", default-features = false }
 
 [dev-dependencies]
 axum-test = "21.1.0"
@@ -44,6 +46,7 @@ server = [
     "axum_session_auth",
     "axum_session_sqlx",
     "config",
+    "directories",
     "password-auth",
     "sqlx",
     "tokio",

@@ -3,8 +3,6 @@ mod monkey;
 mod scripts;
 #[cfg(feature = "server")]
 mod server;
-#[cfg(feature = "desktop")]
-mod settings;
 mod user;
 
 fn main() {

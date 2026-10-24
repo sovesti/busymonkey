@@ -37,6 +37,10 @@ impl ScriptFactory {
         }
     }
 
+    pub fn has_key(&self, key: &str) -> bool {
+        self.key == key
+    }
+
     pub fn create(&self) -> ScriptParametersSchema {
         ScriptParametersSchema {
             key: self.key,
