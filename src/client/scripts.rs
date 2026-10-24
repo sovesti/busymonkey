@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::monkey::script::start_script;
+use crate::{client::settings::Settings, monkey::script::start_script};
 
 #[derive(Clone)]
 enum ShortcutAction {
@@ -19,17 +19,16 @@ pub fn ScriptsView() -> Element {
     use_shortcut_on_desktop(script);
 
     let mut shortcuts = use_signal(|| {
-        vec![
-            ShortcutBinding {
-                keys: String::from("Space"),
-                action: ShortcutAction::ToggleScript,
-            },
-        ]
+        vec![ShortcutBinding {
+            keys: String::from("Space"),
+            action: ShortcutAction::ToggleScript,
+        }]
     });
 
     let mut new_shortcut = use_signal(|| String::new());
 
     rsx! {
+        Settings {},
         h2 {
             "Keyboard Shortcuts"
         }
