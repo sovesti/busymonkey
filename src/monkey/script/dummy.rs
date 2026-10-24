@@ -76,7 +76,7 @@ impl MonkeyScript for DummyScript {
         self.tokens.pop_front()
     }
 
-    fn poll_timeout(&self) -> Option<Instant> {
+    fn poll_timeout(&mut self) -> Option<Instant> {
         Some(
             (self.state.updated + Duration::from_millis(20))
                 .min(self.state.finished + self.interval()),

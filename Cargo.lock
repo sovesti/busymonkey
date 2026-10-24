@@ -646,9 +646,11 @@ dependencies = [
  "config",
  "dioxus",
  "dioxus-primitives",
+ "directories",
  "enigo",
  "inventory",
  "password-auth",
+ "rand 0.10.3",
  "serde",
  "serde_json",
  "sqlx",
@@ -2154,6 +2156,15 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-streams",
  "web-sys",
+]
+
+[[package]]
+name = "directories"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16f5094c54661b38d03bd7e50df373292118db60b585c08a411c6d840017fe7d"
+dependencies = [
+ "dirs-sys",
 ]
 
 [[package]]
