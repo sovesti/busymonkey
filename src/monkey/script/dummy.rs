@@ -25,6 +25,7 @@ impl Default for DummyState {
 impl DummyState {
     fn increment(&mut self) {
         self.position += 1;
+        // first to change
         self.updated = self.updated + Duration::from_millis(20);
     }
 

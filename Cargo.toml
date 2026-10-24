@@ -51,3 +51,9 @@ server = [
     "tower-http",
 ]
 test = ["server"]
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+# google rust style : see docs/CODE_STYLE.md.
+wildcard_imports = "warn"
+unwrap_used = "warn"
