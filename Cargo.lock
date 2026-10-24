@@ -647,6 +647,7 @@ dependencies = [
  "dioxus",
  "dioxus-primitives",
  "enigo",
+ "image",
  "password-auth",
  "serde",
  "serde_json",

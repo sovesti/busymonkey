@@ -1,5 +1,7 @@
 mod auth;
 mod components;
+#[cfg(feature = "desktop")]
+pub(crate) mod desktop;
 mod scripts;
 mod settings;
 
@@ -9,7 +11,7 @@ use auth::AuthView;
 use scripts::ScriptsView;
 
 pub fn app() -> Element {
-    let authorized = use_signal(|| false);
+    let authorized = use_signal(|| true);
     rsx! {
         document::Link { rel: "icon", href: asset!("/assets/favicon.ico") },
         Stylesheet { href: asset!("/assets/dx-components-theme.css") },
