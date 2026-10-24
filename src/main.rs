@@ -11,6 +11,9 @@ fn main() {
         if let Some(host) = option_env!("BUSYMONKEY_HOST") {
             dioxus::fullstack::set_server_url(host);
         }
+        #[cfg(feature = "desktop")]
+        crate::client::desktop::launch();
+        #[cfg(not(feature = "desktop"))]
         dioxus::launch(crate::client::app);
     }
     #[cfg(feature = "server")]
