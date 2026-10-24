@@ -5,6 +5,7 @@ use super::model::Token;
 #[cfg(any(feature = "desktop", feature = "web"))]
 pub(crate) mod dummy;
 
+// first to change
 pub trait MonkeyScript {
     fn poll_action(&mut self) -> Option<Token>;
 

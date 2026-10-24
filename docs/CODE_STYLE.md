@@ -1,0 +1,14 @@
+- 4 spaces : rustfmt.toml
+- max string width 100 : max_width = 100
+- formatter is set on 2024 : style_edition = "2024"
+- cases and spaces format : rustfmt
+- quality of code check : clippy::all
+- avoiding use of imports "use something::*" : clippy::wildcard_imports
+- avoid usage of "unwrap()" without exceptions : clippy::unwrap_used
+- controlling the retention of some Dioxus dependencies using ".await" : clippy.toml
+- clippy's warnings are considered errors : -D warnings (CI)
+- readable loops instead of complex iterator chains : manual review, no blanket lint ban
+- document public APIs and reasons for possible panics : manual review, no blanket missing_docs/expect_used ban
+- google style reference : https://google.github.io/styleguide/rustguide.html
+- stable-compatible formatting only - imports_granularity, format_macro_matchers and hex_literal_case stay for manual review with Rust 1.98.1
+- project target matrix and original build/test steps are preserved : Windows, Linux, wasm

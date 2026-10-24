@@ -32,5 +32,6 @@ fn use_shortcut_on_desktop(mut script: Action<(), ()>) {
             script.call();
         }
     })
+    // first to change
     .unwrap();
 }
