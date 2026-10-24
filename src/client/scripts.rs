@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 
-use crate::{client::settings::Settings, monkey::script::start_script};
+use crate::client::settings::{Settings, registry::ScriptSettingsRegistry};
+use crate::monkey::script::start_script;
 
 #[derive(Clone)]
 enum ShortcutAction {
@@ -65,6 +66,7 @@ pub fn ScriptsView() -> Element {
     });
 
     let mut captured_keys = use_signal(|| None::<ShortcutKeys>);
+    provide_context(use_signal(ScriptSettingsRegistry::new));
 
     rsx! {
         Settings {},
