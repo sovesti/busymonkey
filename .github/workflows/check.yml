@@ -1,12 +1,26 @@
 name: Check
 
 on:
-  push:
-    branches-ignore:
-      - master
+  push: {}
+  pull_request: {}
+
+permissions:
+  contents: read
 
 jobs:
+  format:
+    name: Check formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Check Rust formatting
+        run: cargo fmt --all -- --check
+
   build-all:
+    name: Check (${{ matrix.feature }})
     strategy:
       fail-fast: false
       matrix:
@@ -27,13 +41,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions-rs/toolchain@v1.0.6
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: ${{ matrix.target }}
+          targets: ${{ matrix.target }}
+          components: clippy
       - uses: Swatinem/rust-cache@v2
       - name: Check project
         run: cargo check --features ${{ matrix.feature }}
       - name: Run tests
         if: matrix.feature == 'server'
         run: cargo test --features test
+      - name: Check code with Clippy
+        run: cargo clippy --locked --all-targets --target ${{ matrix.target }} --features ${{ matrix.feature }} -- -D warnings
