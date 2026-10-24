@@ -1,5 +1,7 @@
 mod auth;
+mod components;
 mod scripts;
+mod settings;
 
 use dioxus::prelude::*;
 
@@ -10,6 +12,7 @@ pub fn app() -> Element {
     let authorized = use_signal(|| false);
     rsx! {
         document::Link { rel: "icon", href: asset!("/assets/favicon.ico") },
+        Stylesheet { href: asset!("/assets/dx-components-theme.css") },
         Stylesheet { href: asset!("/assets/tailwind.css") },
         main {
             div {

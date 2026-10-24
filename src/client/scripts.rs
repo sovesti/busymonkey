@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::monkey::script::start_script;
+use crate::{client::settings::Settings, monkey::script::start_script};
 
 #[derive(Clone)]
 enum ShortcutAction {
@@ -55,21 +55,19 @@ pub fn ScriptsView() -> Element {
     use_shortcut_on_desktop(script);
 
     let mut shortcuts = use_signal(|| {
-        vec![
-            ShortcutBinding {
-                keys: ShortcutKeys {
-                    code: Code::Space,
-                    modifiers: Modifiers::empty(),
-                },
-                action: ShortcutAction::ToggleScript,
+        vec![ShortcutBinding {
+            keys: ShortcutKeys {
+                code: Code::Space,
+                modifiers: Modifiers::empty(),
             },
-        ]
+            action: ShortcutAction::ToggleScript,
+        }]
     });
 
     let mut captured_keys = use_signal(|| None::<ShortcutKeys>);
 
     rsx! {
-
+        Settings {},
         style {
             ".shortcut-input:focus {{
                 outline: 2px solid #2563eb;
