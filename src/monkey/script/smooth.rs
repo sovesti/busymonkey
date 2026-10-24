@@ -1,12 +1,16 @@
 use rand::{RngExt, rngs::ThreadRng};
 
-use enigo::agent::Agent;
 use super::super::model::Token;
 use crate::monkey::{
-    Instant, engine, script::{
-        MonkeyScript, command::{Command, CommandState, MicroCommand}, state::{once::Once, smooth_move::smooth_move}, user::{User, UserBuilder},
+    Instant, engine,
+    script::{
+        MonkeyScript,
+        command::{Command, CommandState, MicroCommand},
+        state::{once::Once, smooth_move::smooth_move},
+        user::{User, UserBuilder},
     },
 };
+use enigo::agent::Agent;
 
 pub struct SmoothState<'a> {
     user: &'a User,
@@ -81,7 +85,7 @@ fn random_move(rng: &mut ThreadRng) -> Command {
         rng.random_range(200..1000),
         rng.random_range(200..1000),
         10,
-        10
+        10,
     ))
 }
 

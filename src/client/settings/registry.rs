@@ -1,11 +1,12 @@
 use std::{collections::HashMap, rc::Rc};
 
 use dioxus::prelude::*;
+use serde_json as json;
 
 #[derive(Clone)]
 pub struct ScriptSettingsRegistry {
     chosen: String,
-    known: HashMap<String, String>,
+    known: HashMap<String, json::Value>,
 }
 
 impl ScriptSettingsRegistry {
@@ -16,16 +17,11 @@ impl ScriptSettingsRegistry {
         }
     }
 
-    pub fn current_settings(&self) -> serde_json::Value {
-        self.known
-            .get(&self.chosen())
-            .map(String::as_str)
-            .map(serde_json::from_str)
-            .and_then(Result::ok)
-            .unwrap_or_default()
+    pub fn current_settings(&self) -> json::Value {
+        self.known.get(&self.chosen()).cloned().unwrap_or_default()
     }
 
-    pub fn current_value(&self, key: &str) -> serde_json::Value {
+    pub fn current_value(&self, key: &str) -> json::Value {
         self.current_settings()
             .as_object()
             .map_or_default(|obj| obj.get(key).cloned().unwrap_or_default())
@@ -46,19 +42,18 @@ impl ScriptSettingsRegistry {
     }
 }
 
-fn serialize_form(data: Rc<FormData>) -> anyhow::Result<String> {
+fn serialize_form(data: Rc<FormData>) -> anyhow::Result<json::Value> {
     #[cfg(feature = "desktop")]
     {
         serialized(data)
     }
     #[cfg(any(feature = "server", feature = "web"))]
     {
-        Ok("".to_owned())
+        Ok(json::Value::Null)
     }
 }
 
 #[cfg(feature = "desktop")]
-fn serialized(data: Rc<FormData>) -> anyhow::Result<String> {
-    let parsed: serde_json::Value = data.parsed_values()?;
-    Ok(serde_json::to_string(&parsed)?)
+fn serialized(data: Rc<FormData>) -> anyhow::Result<json::Value> {
+    Ok(data.parsed_values()?)
 }

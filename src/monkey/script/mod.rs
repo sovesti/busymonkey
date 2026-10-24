@@ -1,6 +1,5 @@
 use crate::monkey::Instant;
-
-use super::model::Token;
+use crate::monkey::model::{Token, parameters::DynScript};
 
 mod command;
 mod state;
@@ -20,7 +19,7 @@ pub trait MonkeyScript {
     fn handle_timeout(&mut self, now: Instant);
 }
 
-pub async fn start_script() -> anyhow::Result<()> {
+pub async fn start_script(script: anyhow::Result<DynScript>) -> anyhow::Result<()> {
     #[cfg(any(feature = "desktop", feature = "web"))]
     smooth::run_smooth_wander().await?;
     Ok(())

@@ -1,28 +1,14 @@
-use std::time::Duration;
-
 use dioxus::prelude::*;
 
 use crate::client::settings::registry::ScriptSettingsRegistry;
-use crate::monkey::model::parameters::{Parameter, ParameterSchema};
+use crate::monkey::model::parameters::{Parameter, ParameterSchema, ScriptParametersSchema};
 
 pub(crate) mod duration;
 pub(crate) mod float;
 pub(crate) mod registry;
 
 #[component]
-pub fn Settings() -> Element {
-    let params = vec![
-        Parameter::new(
-            "speed",
-            "Movement speed, px/s",
-            ParameterSchema::float(0.0, 100.0),
-        ),
-        Parameter::new(
-            "interval",
-            "Interval between circles",
-            ParameterSchema::duration(Duration::ZERO, Duration::from_secs(10)),
-        ),
-    ];
+pub fn Settings(params: ScriptParametersSchema) -> Element {
     let mut registry = use_context::<Signal<ScriptSettingsRegistry>>();
     rsx! {
         form {
@@ -31,7 +17,7 @@ pub fn Settings() -> Element {
                 evt.prevent_default();
                 registry.write().store_settings(evt.data());
             },
-            for param in params.into_iter() {
+            for param in params.iter() {
                 ParameterControl { initial: registry().current_value(&param.name), param }
             },
             button {
