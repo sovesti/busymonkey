@@ -13,6 +13,7 @@ axum_session_sqlx = { version = "0.11.0", optional = true }
 config = { version = "0.15.25", optional = true }
 dioxus = { version = "0.7.1", features = ["fullstack"] }
 dioxus-primitives = { git = "https://github.com/DioxusLabs/components", version = "0.0.1", default-features = false }
+directories = { version = "6.0.0", optional = true }
 enigo = { version = "0.6.1" }
 password-auth = { version = "1.0.0", optional = true }
 serde = { version = "1.0.229", features = ["derive"] }
@@ -33,7 +34,7 @@ axum-test = "21.1.0"
 
 [features]
 web = ["dioxus/web"]
-desktop = ["dioxus/desktop", "tokio"]
+desktop = ["dioxus/desktop", "directories", "tokio", "toml"]
 server = [
     "dioxus/server",
     "async-trait",
