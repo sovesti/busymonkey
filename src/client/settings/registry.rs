@@ -47,17 +47,17 @@ impl ScriptSettingsRegistry {
 }
 
 fn serialize_form(data: Rc<FormData>) -> anyhow::Result<String> {
-    #[cfg(any(feature = "desktop", feature = "web"))]
+    #[cfg(feature = "desktop")]
     {
         serialized(data)
     }
-    #[cfg(feature = "server")]
+    #[cfg(any(feature = "server", feature = "web"))]
     {
         Ok("".to_owned())
     }
 }
 
-#[cfg(any(feature = "desktop", feature = "web"))]
+#[cfg(feature = "desktop")]
 fn serialized(data: Rc<FormData>) -> anyhow::Result<String> {
     let parsed: serde_json::Value = data.parsed_values()?;
     Ok(serde_json::to_string(&parsed)?)
