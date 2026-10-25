@@ -1,7 +1,7 @@
-use crate::monkey::Instant;
 use crate::monkey::script::{MonkeyScript, command::CommandState};
 use enigo::agent::Token;
 use std::time::Duration;
+use crate::monkey::Instant;
 
 pub trait TimedIterator {
     type Item;
