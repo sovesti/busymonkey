@@ -1,5 +1,7 @@
 mod auth;
 mod components;
+#[cfg(feature = "desktop")]
+pub(crate) mod desktop;
 mod scripts;
 mod settings;
 

@@ -9,28 +9,28 @@ use crate::monkey::model::parameters::DurationSchema;
 pub fn Control(name: String, title: String, initial: String, schema: DurationSchema) -> Element {
     let initial = initial.parse().unwrap_or_default();
     let mut value = use_signal(|| initial);
-    let label = use_memo(move || format!("{title}: {}", format_time(from_nanos(value()))));
+    let label = use_memo(move || format!("{title}: {}", format_time(from_millis(value()))));
     rsx! {
         input { class: "hidden", r#type: "number", id: name.clone(), name: name.clone(), value },
         label { for: name, "{label}" },
         Slider {
             horizontal: true,
-            min: into_nanos(schema.from),
-            max: into_nanos(schema.to),
-            step: into_nanos(schema.to - schema.from) / 100.0,
+            min: into_millis(schema.from),
+            max: into_millis(schema.to),
+            step: into_millis(schema.to - schema.from) / 100.0,
             id: name.clone(),
-            on_value_change: move |updated: f64| value.set(updated),
-            value: Some(value())
+            on_value_change: move |updated: f64| value.set(updated as u64),
+            value: Some(value() as f64)
         }
     }
 }
 
-fn into_nanos(duration: Duration) -> f64 {
-    duration.as_nanos() as f64
+fn into_millis(duration: Duration) -> f64 {
+    duration.as_millis() as f64
 }
 
-fn from_nanos(nanos: f64) -> Duration {
-    Duration::from_nanos(nanos as u64)
+fn from_millis(millis: u64) -> Duration {
+    Duration::from_millis(millis)
 }
 
 fn format_time(duration: Duration) -> String {
