@@ -1,3 +1,4 @@
+pub(crate) mod settings;
 mod tray;
 
 use dioxus::prelude::*;

@@ -645,10 +645,14 @@ dependencies = [
  "axum_session_sqlx",
  "config",
  "dioxus",
+ "dioxus-icons",
  "dioxus-primitives",
+ "directories",
  "enigo",
  "image",
+ "inventory",
  "password-auth",
+ "rand 0.10.3",
  "serde",
  "serde_json",
  "sqlx",
@@ -1876,6 +1880,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "dioxus-icons"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ae929a4cdde2e51fca98ccb8a8fe2ea11640e5026c57486b15dbd5618ba7e56"
+dependencies = [
+ "dioxus",
+ "dioxus-signals",
+ "lazy-js-bundle",
+]
+
+[[package]]
 name = "dioxus-interpreter-js"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2154,6 +2169,15 @@ dependencies = [
  "wasm-bindgen-futures",
  "wasm-streams",
  "web-sys",
+]
+
+[[package]]
+name = "directories"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16f5094c54661b38d03bd7e50df373292118db60b585c08a411c6d840017fe7d"
+dependencies = [
+ "dirs-sys",
 ]
 
 [[package]]
