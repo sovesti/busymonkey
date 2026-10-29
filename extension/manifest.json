@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Переключение вкладок",
+  "version": "1.0.0",
+  "description": "Переключает вкладки",
+  "minimum_chrome_version": "110",
+  "action": {
+    "default_title": "Включить / выключить переключение вкладок"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
