@@ -3,3 +3,6 @@
 # CD
 /CD/.env
 /CD/config.toml
+
+# macOS
+.DS_Store
