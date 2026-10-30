@@ -11,8 +11,12 @@ use dioxus::desktop::{
     },
     use_wry_event_handler, window,
 };
+
+use dioxus::desktop::use_muda_event_handler;
+
 #[cfg(target_os = "windows")]
-use dioxus::desktop::{tao::platform::windows::WindowBuilderExtWindows, use_muda_event_handler};
+use dioxus::desktop::tao::platform::windows::WindowBuilderExtWindows;
+
 use dioxus::prelude::*;
 
 pub fn launch(app: fn() -> Element) {
@@ -49,7 +53,7 @@ struct TrayMenu {
 impl TrayMenu {
     fn new() -> Self {
         let menu = Menu::new();
-        let toggle = MenuItem::with_id("toggle", "Open", true, None);
+        let toggle = MenuItem::with_id("toggle", "Close", true, None);
         let quit = MenuItem::with_id("quit", "Quit", true, None);
         menu.append_items(&[&toggle, &quit]).unwrap();
         Self { menu, toggle }
@@ -68,10 +72,9 @@ impl Default for TrayMenu {
 
 pub fn init() -> anyhow::Result<()> {
     let menu = TrayMenu::new();
-    #[cfg(target_os = "windows")]
-    {
-        bind_tray_menu_handler(menu.toggle.clone());
-    }
+
+    bind_tray_menu_handler(menu.toggle.clone());
+
     bind_window_closed_handler(menu.toggle.clone());
     bind_context(menu)?;
     Ok(())
@@ -88,7 +91,6 @@ fn bind_context(menu: TrayMenu) -> anyhow::Result<()> {
     Ok(())
 }
 
-#[cfg(target_os = "windows")]
 fn bind_tray_menu_handler(toggle: MenuItem) {
     fn toggle_tray(toggle: MenuItem) {
         let visible = window().window.is_visible();
@@ -122,6 +124,7 @@ fn window_closed<E>(toggle: MenuItem, event: &Event<E>) {
         && event == &WindowEvent::CloseRequested
     {
         toggle.set_text("Open");
+
         window().window.set_visible(false);
     }
 }
