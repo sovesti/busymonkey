@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use dioxus::prelude::*;
 use serde::{Serialize, de::DeserializeOwned};
 
@@ -20,7 +22,7 @@ pub fn use_save_settings<T: SettingsCategory>() -> Action<(), ()> {
     })
 }
 
-pub trait SettingsCategory: DeserializeOwned + Serialize + Default + 'static {
+pub trait SettingsCategory: DeserializeOwned + Serialize + Default + Debug + 'static {
     fn name() -> String;
 
     async fn load_or_default() -> Signal<Self> {

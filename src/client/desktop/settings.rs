@@ -1,5 +1,5 @@
-use std::io;
 use std::path::PathBuf;
+use std::{fmt::Debug, io};
 
 use anyhow::anyhow;
 use dioxus::prelude::*;
@@ -7,7 +7,7 @@ use directories::ProjectDirs;
 use serde::{Serialize, de::DeserializeOwned};
 use tokio::fs;
 
-pub async fn load_or_default<T: DeserializeOwned + Default>(name: String) -> T {
+pub async fn load_or_default<T: DeserializeOwned + Default + Debug>(name: String) -> T {
     in_project_dir(|dir| load(dir, &name))
         .await
         .map_err(|err| warn!("failed to load settings: {err:?}"))

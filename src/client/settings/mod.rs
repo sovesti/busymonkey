@@ -40,7 +40,7 @@ pub fn Settings() -> Element {
 }
 
 #[component]
-fn ParameterControl(param: Parameter, initial: String) -> Element {
+fn ParameterControl(param: Parameter, initial: serde_json::Value) -> Element {
     let name = &param.name;
     rsx! {
         match param.schema {
