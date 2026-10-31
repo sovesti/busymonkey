@@ -1,20 +1,17 @@
 use dioxus::prelude::*;
 
-use crate::client::desktop::shortcut::ShortcutSettings;
-use crate::client::settings::Settings;
-use crate::client::settings::persistence::{provide_settings, use_settings};
+use crate::client::settings::persistence::use_settings;
 use crate::client::settings::registry::ScriptSettingsRegistry;
+use crate::client::settings::scripts::ScriptSettingsView;
 use crate::monkey::script::start_script;
 
 #[component]
 pub fn ScriptsView() -> Element {
-    provide_settings::<ScriptSettingsRegistry>();
     #[cfg(feature = "desktop")]
     use_shortcut_on_desktop(use_start_script());
 
     rsx! {
-        Settings {},
-        ShortcutSettings {},
+        ScriptSettingsView {},
         p {
             "Press space to toggle a script"
         },

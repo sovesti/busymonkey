@@ -1,12 +1,12 @@
 use std::fmt::Debug;
 
-use dioxus::prelude::*;
+use dioxus::{core::provide_root_context, prelude::*};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::client;
 
 pub fn provide_settings<T: SettingsCategory>() {
-    provide_context(use_resource(T::load_or_default));
+    provide_root_context(use_resource(T::load_or_default));
 }
 
 pub fn use_settings<T: SettingsCategory>() -> Resource<Signal<T>> {

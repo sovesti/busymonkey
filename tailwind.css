@@ -1,1 +1,40 @@
 @import "tailwindcss";
+
+@theme inline {
+    --color-rosewater: var(--dark, oklch(0.92 0.02 30.49))
+        var(--light, oklch(0.71 0.1 33.1));
+    --color-error: var(--dark, oklch(0.76 0.13 2.76))
+        var(--light, oklch(0.55 0.22 19.81));
+    --color-peach: var(--dark, oklch(0.82 0.1 52.63))
+        var(--light, oklch(0.69 0.2 42.43));
+    --color-warning: var(--dark, oklch(0.92 0.07 86.53))
+        var(--light, oklch(0.71 0.15 67.78));
+    --color-success: var(--dark, oklch(0.86 0.11 142.72))
+        var(--light, oklch(0.63 0.18 140.44));
+    --color-link: var(--dark, oklch(0.77 0.11 259.88))
+        var(--light, oklch(0.56 0.23 262.09));
+    --color-text: var(--dark, oklch(0.88 0.04 272.28))
+        var(--light, oklch(0.44 0.04 279.33));
+    --color-subtext1: var(--dark, oklch(0.82 0.04 272.86))
+        var(--light, oklch(0.49 0.04 279.3));
+    --color-subtext0: var(--dark, oklch(0.75 0.04 273.93))
+        var(--light, oklch(0.55 0.03 279.08));
+    --color-overlay2: var(--dark, oklch(0.69 0.04 274.73))
+        var(--light, oklch(0.6 0.03 278.69));
+    --color-overlay1: var(--dark, oklch(0.62 0.04 276))
+        var(--light, oklch(0.65 0.03 278.12));
+    --color-overlay0: var(--dark, oklch(0.55 0.03 277.1))
+        var(--light, oklch(0.71 0.02 274.6));
+    --color-surface2: var(--dark, oklch(0.48 0.03 278.64))
+        var(--light, oklch(0.76 0.02 273.15));
+    --color-surface1: var(--dark, oklch(0.4 0.03 280.15))
+        var(--light, oklch(0.81 0.02 271.2));
+    --color-surface0: var(--dark, oklch(0.32 0.03 281.98))
+        var(--light, oklch(0.86 0.01 268.48));
+    --color-base: var(--dark, oklch(0.24 0.03 283.91))
+        var(--light, oklch(0.96 0.01 264.53));
+    --color-mantle: var(--dark, oklch(0.22 0.03 284.06))
+        var(--light, oklch(0.93 0.01 264.52));
+    --color-crust: var(--dark, oklch(0.18 0.02 284.2))
+        var(--light, oklch(0.91 0.01 264.51));
+}
