@@ -124,8 +124,6 @@ fn window_closed<E>(toggle: MenuItem, event: &Event<E>) {
         && event == &WindowEvent::CloseRequested
     {
         toggle.set_text("Open");
-
-        window().window.set_visible(false);
     }
 }
 
