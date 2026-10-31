@@ -1,12 +1,16 @@
 use dioxus::CapturedError;
 use dioxus::prelude::*;
 
+use super::components::Button;
+use crate::client::components::TabContent;
+use crate::client::components::TabList;
+use crate::client::components::TabTrigger;
+use crate::client::components::Tabs;
 use crate::user::api::{sign_in, sign_up};
 
-#[derive(PartialEq)]
-enum Tab {
-    SignIn,
-    SignUp,
+#[derive(Clone, Copy)]
+pub struct AuthenticationState {
+    authorized: Signal<bool>,
 }
 
 /// Renders an action's `CapturedError` as a plain message for the user, without
@@ -19,39 +23,35 @@ fn readable_error(err: &CapturedError) -> String {
 }
 
 #[component]
-pub fn AuthView(authorized: Signal<bool>) -> Element {
-    let mut tab = use_signal(|| Tab::SignIn);
+pub fn AuthView() -> Element {
     rsx! {
-        div {
-            class: "flex flex-col w-1/3 min-w-60 justify-self-center",
-            div {
-                class: "flex flex-row",
-                button {
-                    class: "flex-1 rounded-m m-1 px-1 py-2 hover:bg-sky-100 cursor-pointer transition-colors",
-                    class: if *tab.read() == Tab::SignIn { "bg-sky-200" } else { "" },
-                    onclick: move |_| tab.set(Tab::SignIn),
-                    "Sign in"
-                },
-                button {
-                    class: "flex-1 rounded-m m-1 px-1 py-2 hover:bg-sky-100 cursor-pointer transition-colors",
-                    class: if *tab.read() == Tab::SignUp { "bg-sky-200" } else { "" },
-                    onclick: move |_| tab.set(Tab::SignUp),
-                    "Sign up"
-                }
-            }
-            match *tab.read() {
-                Tab::SignIn => rsx! { SignInForm { authorized } },
-                Tab::SignUp => rsx! { SignUpForm { authorized } },
+        Tabs {
+            default_value: "signin",
+            horizontal: true,
+            max_width: "16rem",
+            TabList {
+                TabTrigger { value: "signin".to_string(), index: 0usize, "Sign in" }
+                TabTrigger { value: "signup".to_string(), index: 1usize, "Sign up" }
+            },
+            TabContent {
+                index: 0usize,
+                value: "signin".to_string(),
+                SignInForm {}
+            },
+            TabContent {
+                index: 1usize,
+                value: "signup".to_string(),
+                SignUpForm {}
             }
         }
     }
 }
 
 #[component]
-fn SignInForm(authorized: Signal<bool>) -> Element {
+fn SignInForm() -> Element {
     let mut username = use_signal(String::new);
     let mut password = use_signal(String::new);
-    let mut signin = use_action(move || try_sign_in(username, password, authorized));
+    let mut signin = use_action(move || try_sign_in(username, password));
     rsx! {
         div {
             class: "flex flex-col",
@@ -68,8 +68,7 @@ fn SignInForm(authorized: Signal<bool>) -> Element {
                 type: "password",
                 value: password
             },
-            button {
-                class: "w-1/2 rounded-xl m-1 px-4 py-2 bg-sky-600 text-white hover:bg-sky-700 active:bg-sky-800 cursor-pointer transition-colors self-center",
+            Button {
                 onclick: move |_| signin.call(),
                 disabled: signin.pending(),
                 if signin.pending() { "Checking..." } else { "Sign in" }
@@ -81,21 +80,17 @@ fn SignInForm(authorized: Signal<bool>) -> Element {
     }
 }
 
-async fn try_sign_in(
-    username: Signal<String>,
-    password: Signal<String>,
-    mut authorized: Signal<bool>,
-) -> Result<()> {
+async fn try_sign_in(username: Signal<String>, password: Signal<String>) -> Result<()> {
     sign_in(username.to_string(), password.to_string()).await?;
-    authorized.set(true);
+    use_context::<AuthenticationState>().authorized.set(true);
     Ok(())
 }
 
 #[component]
-fn SignUpForm(authorized: Signal<bool>) -> Element {
+fn SignUpForm() -> Element {
     let mut username = use_signal(String::new);
     let mut password = use_signal(String::new);
-    let mut signup = use_action(move || try_sign_up(username, password, authorized));
+    let mut signup = use_action(move || try_sign_up(username, password));
     rsx! {
         div {
             class: "flex flex-col",
@@ -112,8 +107,7 @@ fn SignUpForm(authorized: Signal<bool>) -> Element {
                 type: "password",
                 value: password
             },
-            button {
-                class: "w-1/2 rounded-xl m-1 px-4 py-2 bg-sky-600 text-white hover:bg-sky-700 active:bg-sky-800 cursor-pointer transition-colors self-center",
+            Button {
                 onclick: move |_| signup.call(),
                 disabled: signup.pending(),
                 if signup.pending() { "Registering..." } else { "Sign up" }
@@ -125,11 +119,7 @@ fn SignUpForm(authorized: Signal<bool>) -> Element {
     }
 }
 
-async fn try_sign_up(
-    username: Signal<String>,
-    password: Signal<String>,
-    authorized: Signal<bool>,
-) -> Result<()> {
+async fn try_sign_up(username: Signal<String>, password: Signal<String>) -> Result<()> {
     sign_up(username.to_string(), password.to_string()).await?;
-    try_sign_in(username, password, authorized).await
+    try_sign_in(username, password).await
 }
