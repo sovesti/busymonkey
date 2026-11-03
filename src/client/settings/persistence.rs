@@ -1,10 +1,12 @@
-use dioxus::prelude::*;
+use std::fmt::Debug;
+
+use dioxus::{core::provide_root_context, prelude::*};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::client;
 
 pub fn provide_settings<T: SettingsCategory>() {
-    provide_context(use_resource(T::load_or_default));
+    provide_root_context(use_resource(T::load_or_default));
 }
 
 pub fn use_settings<T: SettingsCategory>() -> Resource<Signal<T>> {
@@ -20,7 +22,7 @@ pub fn use_save_settings<T: SettingsCategory>() -> Action<(), ()> {
     })
 }
 
-pub trait SettingsCategory: DeserializeOwned + Serialize + Default + 'static {
+pub trait SettingsCategory: DeserializeOwned + Serialize + Default + Debug + 'static {
     fn name() -> String;
 
     async fn load_or_default() -> Signal<Self> {
