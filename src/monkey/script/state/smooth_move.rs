@@ -1,7 +1,8 @@
 use std::{collections::VecDeque, time::Duration};
 
 use enigo::{Mouse, agent::Token};
-use rand::{RngExt, rngs::ThreadRng};
+use rand::rngs::SmallRng;
+use rand::RngExt;
 use crate::monkey::Instant;
 
 use crate::monkey::script::{
@@ -58,7 +59,7 @@ struct SmoothMoveIter<'a> {
     user: &'a User,
     target: Vector,
     gate: Vector,
-    rng: ThreadRng,
+    rng: SmallRng,
     vel: Vector,
     cur: Vector,
     pos_buf: TimeBuf<(Vector, Vector)>,
@@ -72,7 +73,7 @@ impl<'a> SmoothMoveIter<'a> {
             user,
             target,
             gate,
-            rng: rand::rng(),
+            rng: rand::make_rng(),
             vel: Vector::from_coords((0, 0)),
             // TODO: temporary stub, because no architecture for location polling is around yet
             cur: Vector::from_coords(enigo::Enigo::new(&enigo::Settings::default()).unwrap().location().unwrap()),

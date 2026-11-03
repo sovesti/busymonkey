@@ -1,14 +1,17 @@
+use dioxus::prelude::{desktop, web};
+use anyhow::bail;
 use crate::monkey::Instant;
 use crate::monkey::model::{Token, parameters::DynScript};
 
 mod command;
+#[cfg(any(feature = "desktop"))]
 mod state;
 mod user;
 pub mod util;
 
-#[cfg(any(feature = "desktop", feature = "web"))]
+#[cfg(any(feature = "desktop"))]
 pub(crate) mod dummy;
-#[cfg(any(feature = "desktop", feature = "web"))]
+#[cfg(any(feature = "desktop"))]
 pub(crate) mod smooth;
 
 pub trait MonkeyScript {
@@ -20,7 +23,11 @@ pub trait MonkeyScript {
 }
 
 pub async fn start_script(script: anyhow::Result<DynScript>) -> anyhow::Result<()> {
-    #[cfg(any(feature = "desktop", feature = "web"))]
-    smooth::run_smooth_wander().await?;
+    desktop! {
+        smooth::run_smooth_wander().await?;
+    }
+    web! {
+        bail!("Running scripts form web is not supported")
+    }
     Ok(())
 }
