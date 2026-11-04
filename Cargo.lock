@@ -649,6 +649,7 @@ dependencies = [
  "dioxus-primitives",
  "directories",
  "enigo",
+ "getrandom 0.4.3",
  "image",
  "inventory",
  "password-auth",
