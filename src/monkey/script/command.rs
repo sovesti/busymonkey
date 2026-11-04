@@ -1,4 +1,4 @@
-use crate::monkey::script::MonkeyScript;
+use crate::monkey::script::TokenProto;
 use enigo::{Button, Direction, Key};
 use std::iter::{Iterator, once, repeat};
 
@@ -44,11 +44,4 @@ impl Command {
             ),
         }
     }
-}
-
-/// A state, built from a single Command, yielding a sequence of `Token`s,
-/// handling timeouts and current mouse position, and reporting finish of the
-/// command execution
-pub trait CommandState: MonkeyScript {
-    fn is_finished(&mut self) -> bool;
 }

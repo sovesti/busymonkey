@@ -1,9 +1,9 @@
 use std::time::Duration;
 
-use enigo::agent::Token;
 use crate::monkey::Instant;
+use enigo::agent::Token;
 
-use crate::monkey::script::{MonkeyScript, command::CommandState};
+use crate::monkey::script::TokenProto;
 
 pub struct Wait {
     is_finished: bool,
@@ -19,7 +19,7 @@ impl Wait {
     }
 }
 
-impl MonkeyScript for Wait {
+impl TokenProto for Wait {
     fn poll_action(&mut self) -> Option<Token> {
         None
     }
@@ -33,9 +33,7 @@ impl MonkeyScript for Wait {
             self.is_finished = true;
         }
     }
-}
 
-impl CommandState for Wait {
     fn is_finished(&mut self) -> bool {
         self.is_finished
     }

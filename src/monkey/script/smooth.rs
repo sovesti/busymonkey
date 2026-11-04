@@ -1,22 +1,26 @@
 use rand::{RngExt, rngs::ThreadRng};
 
-use enigo::agent::Agent;
 use super::super::model::Token;
 use crate::monkey::{
-    Instant, engine, script::{
-        MonkeyScript, command::{Command, CommandState, MicroCommand}, state::{once::Once, smooth_move::smooth_move}, user::{User, UserBuilder},
+    Instant, engine,
+    script::{
+        TokenProto,
+        command::{Command, MicroCommand},
+        state::{once::Once, smooth_move::smooth_move},
+        user::{UserBuilder, UserCfg},
     },
 };
+use enigo::agent::Agent;
 
 pub struct SmoothState<'a> {
-    user: &'a User,
+    user: &'a UserCfg,
     iter: Box<dyn Iterator<Item = MicroCommand>>,
-    state: Option<Box<dyn CommandState + 'a>>,
+    state: Option<Box<dyn TokenProto + 'a>>,
     now: Instant,
 }
 
 impl<'a> SmoothState<'a> {
-    pub fn new(user: &'a User, command: Command, now: Instant) -> Self {
+    pub fn new(user: &'a UserCfg, command: Command, now: Instant) -> Self {
         let mut iter = command.into_micros();
         let state = iter.next().map(|cmd| micro_command_state(user, now, cmd));
         Self {
@@ -29,10 +33,10 @@ impl<'a> SmoothState<'a> {
 }
 
 fn micro_command_state<'a>(
-    user: &'a User,
+    user: &'a UserCfg,
     now: Instant,
     cmd: MicroCommand,
-) -> Box<dyn CommandState + 'a> {
+) -> Box<dyn TokenProto + 'a> {
     match cmd {
         MicroCommand::MoveToRect(x, y, w, h) => Box::new(smooth_move(user, now, x, y, w, h)),
         MicroCommand::Key(key, dir) => Box::new(Once::new(user, Token::Key(key, dir), now)),
@@ -42,7 +46,7 @@ fn micro_command_state<'a>(
     }
 }
 
-impl<'a> MonkeyScript for SmoothState<'a> {
+impl<'a> TokenProto for SmoothState<'a> {
     fn poll_action(&mut self) -> Option<Token> {
         loop {
             match &mut self.state {
@@ -68,9 +72,7 @@ impl<'a> MonkeyScript for SmoothState<'a> {
         self.now = now;
         self.state.as_mut().map(|state| state.handle_timeout(now));
     }
-}
 
-impl<'a> CommandState for SmoothState<'a> {
     fn is_finished(&mut self) -> bool {
         matches!(self.state, None)
     }
@@ -81,7 +83,7 @@ fn random_move(rng: &mut ThreadRng) -> Command {
         rng.random_range(200..1000),
         rng.random_range(200..1000),
         10,
-        10
+        10,
     ))
 }
 

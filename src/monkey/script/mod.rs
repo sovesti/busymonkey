@@ -14,12 +14,14 @@ pub(crate) mod dummy;
 #[cfg(any(feature = "desktop"))]
 pub(crate) mod smooth;
 
-pub trait MonkeyScript {
+pub trait TokenProto {
     fn poll_action(&mut self) -> Option<Token>;
 
     fn poll_timeout(&mut self) -> Option<Instant>;
 
     fn handle_timeout(&mut self, now: Instant);
+
+    fn is_finished(&mut self) -> bool;
 }
 
 pub async fn start_script(script: anyhow::Result<DynScript>) -> anyhow::Result<()> {

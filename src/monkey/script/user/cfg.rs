@@ -8,20 +8,20 @@ const TIME_TO_MAX_SPEED: Duration = Duration::from_millis(500);
 /// additional fields may be added
 #[non_exhaustive]
 #[derive(Clone, Copy)]
-pub struct User {
+pub struct UserCfg {
     pub reaction_time: Duration,
     pub poll_rate: Duration,
     // Max mouse move speed in pixels per second
     pub max_speed: f32,
 }
 
-impl User {
+impl UserCfg {
     pub fn max_acceleration(&self) -> f32 {
         self.max_speed / TIME_TO_MAX_SPEED.as_secs() as f32
     }
 }
 
-/// Fluent builder for `User`
+// Fluent builder for `UserCfg`
 pub struct UserBuilder {
     reaction_time: Duration,
     poll_rate: Duration,
@@ -54,13 +54,13 @@ impl UserBuilder {
         self
     }
 
-    pub fn build(self) -> User {
+    pub fn build(self) -> UserCfg {
         let Self {
             reaction_time,
             poll_rate,
             max_speed,
         } = self;
-        User {
+        UserCfg {
             reaction_time,
             poll_rate,
             max_speed,

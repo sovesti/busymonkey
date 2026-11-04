@@ -1,25 +1,25 @@
 use std::{collections::VecDeque, time::Duration};
 
+use crate::monkey::{Instant, script::TokenProto};
 use enigo::{Mouse, agent::Token};
 use rand::rngs::SmallRng;
 use rand::RngExt;
 use crate::monkey::Instant;
 
 use crate::monkey::script::{
-    command::CommandState,
     state::poll_rate_yield::{PollRateYield, TimedIterator},
-    user::User,
+    user::UserCfg,
     util::vector::Vector,
 };
 
 pub fn smooth_move<'a>(
-    user: &'a User,
+    user: &'a UserCfg,
     now: Instant,
     x: i32,
     y: i32,
     w: i32,
     h: i32,
-) -> impl CommandState {
+) -> impl TokenProto {
     PollRateYield::new(SmoothMoveIter::new(user, x, y, w, h), user.poll_rate, now)
 }
 
@@ -32,8 +32,8 @@ struct TimeBuf<T: Clone> {
 impl<T: Clone> TimeBuf<T> {
     fn new(max: Duration) -> Self {
         Self {
-            max, 
-            total: Duration::default(), 
+            max,
+            total: Duration::default(),
             buf: VecDeque::default(),
         }
     }
@@ -56,7 +56,7 @@ impl<T: Clone> TimeBuf<T> {
 }
 
 struct SmoothMoveIter<'a> {
-    user: &'a User,
+    user: &'a UserCfg,
     target: Vector,
     gate: Vector,
     rng: SmallRng,
@@ -66,7 +66,7 @@ struct SmoothMoveIter<'a> {
 }
 
 impl<'a> SmoothMoveIter<'a> {
-    pub fn new(user: &'a User, x: i32, y: i32, w: i32, h: i32) -> Self {
+    pub fn new(user: &'a UserCfg, x: i32, y: i32, w: i32, h: i32) -> Self {
         let target = (Vector::from_coords((x, y)) + Vector::from_coords((x + w, y + h))) / 2f32;
         let gate = (Vector::from_coords((w, h))) / 2f32;
         Self {
@@ -76,7 +76,12 @@ impl<'a> SmoothMoveIter<'a> {
             rng: rand::make_rng(),
             vel: Vector::from_coords((0, 0)),
             // TODO: temporary stub, because no architecture for location polling is around yet
-            cur: Vector::from_coords(enigo::Enigo::new(&enigo::Settings::default()).unwrap().location().unwrap()),
+            cur: Vector::from_coords(
+                enigo::Enigo::new(&enigo::Settings::default())
+                    .unwrap()
+                    .location()
+                    .unwrap(),
+            ),
             pos_buf: TimeBuf::new(user.reaction_time),
         }
     }
@@ -89,7 +94,7 @@ impl<'a> TimedIterator for SmoothMoveIter<'a> {
         if self.is_finished() {
             return None;
         }
-        let dt= delta.as_secs_f32();
+        let dt = delta.as_secs_f32();
         let mxdv = self.user.max_acceleration() * dt;
         let (seen_pos, seen_vel) = self.pos_buf.back().unwrap_or((self.cur, self.vel));
         let off = self.target - seen_pos;
@@ -98,7 +103,7 @@ impl<'a> TimedIterator for SmoothMoveIter<'a> {
         dv = dv.clamp_len(mxdv);
         dv += off.clamp_len((mxdv * mxdv - dv.sqlen()).clamp(0f32, mxdv * mxdv).sqrt());
         let proximity = off.len().clamp(0f32, 500f32) / 500f32;
-        
+
         dv = dv.rotate(self.rng.random_range(-0.4 * proximity..0.4 * proximity));
         self.vel += dv;
         self.vel = self.vel.clamp_len(self.user.max_speed * proximity);

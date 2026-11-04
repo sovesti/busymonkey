@@ -1,7 +1,7 @@
-use crate::monkey::script::{MonkeyScript, command::CommandState};
+use crate::monkey::Instant;
+use crate::monkey::script::TokenProto;
 use enigo::agent::Token;
 use std::time::Duration;
-use crate::monkey::Instant;
 
 pub trait TimedIterator {
     type Item;
@@ -28,7 +28,7 @@ impl<T: TimedIterator<Item = Token>> PollRateYield<T> {
     }
 }
 
-impl<T: TimedIterator<Item = Token>> MonkeyScript for PollRateYield<T> {
+impl<T: TimedIterator<Item = Token>> TokenProto for PollRateYield<T> {
     fn poll_action(&mut self) -> Option<Token> {
         if self.now < self.last {
             None
@@ -45,9 +45,7 @@ impl<T: TimedIterator<Item = Token>> MonkeyScript for PollRateYield<T> {
     fn handle_timeout(&mut self, now: Instant) {
         self.now = now;
     }
-}
 
-impl<T: TimedIterator<Item = Token>> CommandState for PollRateYield<T> {
     fn is_finished(&mut self) -> bool {
         self.iter.is_finished()
     }

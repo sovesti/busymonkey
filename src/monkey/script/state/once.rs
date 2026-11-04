@@ -1,7 +1,7 @@
-use enigo::agent::Token;
 use crate::monkey::Instant;
+use enigo::agent::Token;
 
-use crate::monkey::script::{MonkeyScript, command::CommandState, user::User};
+use crate::monkey::script::{TokenProto, user::UserCfg};
 
 pub struct Once {
     token: Option<Token>,
@@ -9,7 +9,7 @@ pub struct Once {
 }
 
 impl Once {
-    pub fn new(user: &User, token: Token, time: Instant) -> Self {
+    pub fn new(user: &UserCfg, token: Token, time: Instant) -> Self {
         Self {
             token: Some(token),
             finish: time + user.poll_rate,
@@ -17,7 +17,7 @@ impl Once {
     }
 }
 
-impl MonkeyScript for Once {
+impl TokenProto for Once {
     fn poll_action(&mut self) -> Option<Token> {
         self.token.take()
     }
@@ -27,9 +27,7 @@ impl MonkeyScript for Once {
     }
 
     fn handle_timeout(&mut self, _now: Instant) {}
-}
 
-impl CommandState for Once {
     fn is_finished(&mut self) -> bool {
         matches!(self.token, None)
     }
