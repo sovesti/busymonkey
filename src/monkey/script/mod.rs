@@ -4,6 +4,7 @@ use crate::monkey::Instant;
 use crate::monkey::model::{Token, parameters::DynScript};
 
 mod command;
+pub(crate) mod jitter;
 #[cfg(any(feature = "desktop"))]
 mod state;
 mod user;
