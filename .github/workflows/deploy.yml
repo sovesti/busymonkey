@@ -7,6 +7,56 @@ on:
 env:
   BUSYMONKEY_HOST: ${{ vars.BUSYMONKEY_HOST }}
 jobs:
+  publish-image:
+    name: Publish docker image on push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    concurrency:
+      group: publish-image-${{ github.ref }}
+      cancel-in-progress: true
+    env:
+      REGISTRY_ADDRESS: ${{ secrets.REGISTRY_ADDRESS }}
+      DOCKER_CONFIG: ${{ runner.temp }}/docker-registry
+    steps:
+      - uses: actions/checkout@v7
+      - name: Read image name and version
+        shell: bash
+        run: |
+          metadata=$(cargo metadata --no-deps --format-version 1)
+
+          name=$(printf '%s' "$metadata" | jq -er '.packages[0].name | ascii_downcase')
+          version=$(printf '%s' "$metadata" | jq -er '.packages[0].version')
+
+          registry="${REGISTRY_ADDRESS%/}"
+
+          if [[ -z "$registry" || "$registry" == *"://"* || "$registry" == *"/"* ]]; then
+            echo "REGISTRY_ADDRESS must contain a registry host and optional port" >&2
+            exit 1
+          fi
+
+          printf 'IMAGE_NAME=%s/%s\n' "$registry" "$name" >> "$GITHUB_ENV"
+          printf 'APP_VERSION=%s\n' "${version//+/-}" >> "$GITHUB_ENV"
+      - name: Log in to registry
+        env:
+          REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+          REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        run: |
+          : "${REGISTRY_USERNAME:?Missing REGISTRY_USERNAME secret}"
+          : "${REGISTRY_PASSWORD:?Missing REGISTRY_PASSWORD secret}"
+          printf '%s' "$REGISTRY_PASSWORD" | docker login "$REGISTRY_ADDRESS" \
+            --username "$REGISTRY_USERNAME" --password-stdin
+      - name: Build and push image
+        run: |
+          docker build --pull --file CD/Dockerfile \
+            --tag "${IMAGE_NAME}:${APP_VERSION}-${GITHUB_REF_NAME}" \
+            --tag "${IMAGE_NAME}:latest" .
+          docker push "${IMAGE_NAME}:${APP_VERSION}-${GITHUB_REF_NAME}"
+          docker push "${IMAGE_NAME}:latest"
+      - name: Log out of registry
+        if: ${{ always() && env.REGISTRY_ADDRESS != '' }}
+        run: docker logout "$REGISTRY_ADDRESS"
+
   deploy-server:
     runs-on: ubuntu-latest
     steps:
