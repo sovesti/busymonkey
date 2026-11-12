@@ -1,6 +1,7 @@
 #[cfg(feature = "desktop")]
 pub(crate) mod engine;
 pub(crate) mod model;
+pub(crate) mod record;
 pub(crate) mod script;
 
 #[cfg(any(feature = "server", feature = "desktop"))]

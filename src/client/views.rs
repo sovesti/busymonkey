@@ -1,11 +1,12 @@
 use std::fmt::{self, Display};
 
 use dioxus::prelude::*;
-use dioxus_icons::lucide::{CircleUser, Cog, ScrollText};
+use dioxus_icons::lucide::{BookDashed, CircleUser, Cog, ScrollText};
 
 use crate::client::components::{
     Button, ButtonAlignment, ButtonSize, ButtonVariant, SidebarContent, use_sidebar,
 };
+use crate::client::templates::TemplatesView;
 
 use super::auth::AuthView;
 use super::components::{Sidebar, SidebarHeader, SidebarInset, SidebarProvider, SidebarTrigger};
@@ -50,11 +51,17 @@ fn CurrentView(current: Signal<View>) -> Element {
         View::Account => rsx! { AuthView {} },
         View::Scripts => rsx! { ScriptsView {} },
         View::Settings => rsx! { SettingsView {} },
+        View::Templates => rsx! { TemplatesView {} },
     }
 }
 
 fn views() -> Vec<View> {
-    vec![View::Account, View::Scripts, View::Settings]
+    vec![
+        View::Account,
+        View::Scripts,
+        View::Settings,
+        View::Templates,
+    ]
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -62,6 +69,7 @@ enum View {
     Account,
     Scripts,
     Settings,
+    Templates,
 }
 
 impl Display for View {
@@ -73,6 +81,7 @@ impl Display for View {
                 View::Account => "Account",
                 View::Scripts => "Scripts",
                 View::Settings => "Settings",
+                View::Templates => "Templates",
             }
         )
     }
@@ -84,5 +93,6 @@ fn Icon(view: View) -> Element {
         View::Account => rsx! { CircleUser {} },
         View::Scripts => rsx! { ScrollText {} },
         View::Settings => rsx! { Cog {} },
+        View::Templates => rsx! { BookDashed {} },
     }
 }

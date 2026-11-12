@@ -167,6 +167,9 @@
   }
 }
 @layer utilities {
+  .visible {
+    visibility: visible;
+  }
   .static {
     position: static;
   }
@@ -212,6 +215,9 @@
   .flex-1 {
     flex: 1;
   }
+  .flex-4 {
+    flex: 4;
+  }
   .border-collapse {
     border-collapse: collapse;
   }
@@ -220,6 +226,9 @@
   }
   .flex-col {
     flex-direction: column;
+  }
+  .flex-row {
+    flex-direction: row;
   }
   .items-center {
     align-items: center;
