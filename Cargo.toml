@@ -12,11 +12,15 @@ axum_session_auth = { version = "0.21.0", optional = true }
 axum_session_sqlx = { version = "0.11.0", optional = true }
 config = { version = "0.15.25", optional = true }
 dioxus = { version = "0.7.1", features = ["fullstack"] }
+dioxus-icons = { version = "0.1.0", default-features = false }
 dioxus-primitives = { git = "https://github.com/DioxusLabs/components", version = "0.0.1", default-features = false }
 directories = { version = "6.0.0", optional = true }
 enigo = { version = "0.6.1" }
+inventory = "0.3.25"
+image = { version = "0.25.10", default-features = false, features = ["ico"] }
 password-auth = { version = "1.0.0", optional = true }
-rand = { version = "0.10.3" }
+rand = { version = "0.10.3", default-features = false, features = ["thread_rng"] }
+getrandom = { version = "0.4.3" }
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
 sqlx = { version = "0.9.0", features = ["macros", "postgres"], optional = true }
@@ -37,7 +41,7 @@ getrandom = { version = "0.4.3", features = ["wasm_js"] }
 axum-test = "21.1.0"
 
 [features]
-web = ["dioxus/web"]
+web = ["dioxus/web", "getrandom/wasm_js"]
 desktop = ["dioxus/desktop", "directories", "tokio", "toml"]
 server = [
     "dioxus/server",
@@ -46,6 +50,7 @@ server = [
     "axum_session_auth",
     "axum_session_sqlx",
     "config",
+    "directories",
     "password-auth",
     "sqlx",
     "tokio",

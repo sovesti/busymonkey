@@ -1,13 +1,13 @@
-use std::time::Duration;
-
 use dioxus::prelude::*;
 
-use crate::client::settings::registry::ScriptSettingsRegistry;
-use crate::monkey::model::parameters::{Parameter, ParameterSchema};
+use shortcut::ShortuctSettingsView;
 
 pub(crate) mod duration;
 pub(crate) mod float;
+pub(crate) mod persistence;
 pub(crate) mod registry;
+pub(crate) mod scripts;
+pub(crate) mod shortcut;
 
 #[component]
 pub fn Settings() -> Element {

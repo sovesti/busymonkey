@@ -1,6 +1,8 @@
 use dioxus::prelude::*;
 
-use crate::client::settings::{Settings, registry::ScriptSettingsRegistry};
+use crate::client::settings::persistence::use_settings;
+use crate::client::settings::registry::ScriptSettingsRegistry;
+use crate::client::settings::scripts::ScriptSettingsView;
 use crate::monkey::script::start_script;
 
 #[derive(Clone)]
@@ -51,22 +53,8 @@ struct ShortcutBinding {
 
 #[component]
 pub fn ScriptsView() -> Element {
-    let script = use_action(start_script);
     #[cfg(feature = "desktop")]
-    use_shortcut_on_desktop(script);
-
-    let mut shortcuts = use_signal(|| {
-        vec![ShortcutBinding {
-            keys: ShortcutKeys {
-                code: Code::Space,
-                modifiers: Modifiers::empty(),
-            },
-            action: ShortcutAction::ToggleScript,
-        }]
-    });
-
-    let mut captured_keys = use_signal(|| None::<ShortcutKeys>);
-    provide_context(use_signal(ScriptSettingsRegistry::new));
+    use_shortcut_on_desktop(use_start_script());
 
     rsx! {
         Settings {}
@@ -210,6 +198,16 @@ pub fn ScriptsView() -> Element {
             p { class: "text-red", {err.to_string()} }
         }
     }
+}
+
+fn use_start_script() -> Action<(), ()> {
+    use_action(move || async move {
+        if let Some(registry) = *use_settings::<ScriptSettingsRegistry>().read() {
+            start_script(registry.read().create_with_settings()).await
+        } else {
+            Ok(())
+        }
+    })
 }
 
 #[cfg(feature = "desktop")]

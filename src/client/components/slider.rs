@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_primitives::slider::{self, RangeSliderProps, SliderProps};
 
-#[css_module("/src/client/components/style.css")]
+#[css_module("/src/client/components/slider.css")]
 struct Styles;
 
 #[component]

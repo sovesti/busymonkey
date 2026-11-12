@@ -1,0 +1,33 @@
+.dx-tabs {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+}
+
+.dx-tabs-list {
+    display: flex;
+    width: fit-content;
+    box-sizing: border-box;
+    flex: 1;
+    flex-direction: row;
+    padding: 0.25rem;
+    border: none;
+    gap: 0.25rem;
+}
+
+.dx-tabs-trigger {
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.dx-tabs-content {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 2rem;
+}
+
+.dx-tabs-content[data-state="inactive"] {
+    display: none;
+}

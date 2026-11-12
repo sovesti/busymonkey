@@ -31,12 +31,12 @@ pub fn Control(name: String, title: String, initial: String, schema: DurationSch
     }
 }
 
-fn into_nanos(duration: Duration) -> f64 {
-    duration.as_nanos() as f64
+fn into_millis(duration: Duration) -> f64 {
+    duration.as_millis() as f64
 }
 
-fn from_nanos(nanos: f64) -> Duration {
-    Duration::from_nanos(nanos as u64)
+fn from_millis(millis: u64) -> Duration {
+    Duration::from_millis(millis)
 }
 
 fn format_time(duration: Duration) -> String {

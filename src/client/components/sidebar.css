@@ -1,0 +1,296 @@
+/* TODO: abstract as Utilitiy class */
+.dx-sr-only {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    margin: -1px;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.dx-sidebar-wrapper {
+    --dx-sidebar-background: var(--color-mantle);
+    --dx-sidebar-foreground: var(--color-text);
+    --dx-sidebar-border: var(--color-overlay1);
+    --dx-sidebar-accent: var(--color-base);
+    --dx-sidebar-accent-foreground: var(--color-base);
+    --dx-sidebar-ring: var(--color-overlay1);
+
+    display: flex;
+    overflow: hidden;
+    width: 100%;
+    height: 100svh;
+    min-height: 100svh;
+}
+
+@media (width >=768px) {
+    .dx-sidebar-wrapper:has(.dx-sidebar-desktop[data-side="right"]) {
+        flex-direction: row-reverse;
+    }
+
+    .dx-sidebar-wrapper:has(.dx-sidebar-desktop[data-variant="inset"]) {
+        background: var(--dx-sidebar-background);
+    }
+}
+
+.dx-sidebar-desktop {
+    display: none;
+    color: var(--dx-sidebar-foreground);
+}
+
+@media (width >=768px) {
+    .dx-sidebar-desktop {
+        display: block;
+    }
+}
+
+.dx-sidebar-gap {
+    position: relative;
+    width: var(--dx-sidebar-width);
+    background: transparent;
+    transition: width 200ms ease-out;
+}
+
+[data-collapsible="icon"] .dx-sidebar-gap {
+    width: var(--dx-sidebar-width-icon);
+}
+
+[data-variant="floating"] .dx-sidebar-gap,
+[data-variant="inset"] .dx-sidebar-gap {
+    width: var(--dx-sidebar-width);
+}
+
+[data-variant="floating"][data-collapsible="icon"] .dx-sidebar-gap,
+[data-variant="inset"][data-collapsible="icon"] .dx-sidebar-gap {
+    width: calc(var(--dx-sidebar-width-icon) + 1rem);
+}
+
+[data-collapsible="offcanvas"] .dx-sidebar-gap {
+    width: 0;
+}
+
+.dx-sidebar-container {
+    position: fixed;
+    z-index: 10;
+    top: 0;
+    bottom: 0;
+    display: none;
+    width: var(--dx-sidebar-width);
+    height: 100svh;
+    box-sizing: border-box;
+    transition:
+        left 200ms ease-out,
+        right 200ms ease-out,
+        width 200ms ease-out;
+}
+
+@media (width >=768px) {
+    .dx-sidebar-container {
+        display: flex;
+    }
+}
+
+[data-side="left"] .dx-sidebar-container {
+    left: 0;
+}
+
+[data-side="left"][data-collapsible="offcanvas"] .dx-sidebar-container {
+    left: calc(var(--dx-sidebar-width) * -1);
+}
+
+[data-side="right"] .dx-sidebar-container {
+    right: 0;
+}
+
+[data-side="right"][data-collapsible="offcanvas"] .dx-sidebar-container {
+    right: calc(var(--dx-sidebar-width) * -1);
+}
+
+[data-collapsible="icon"] .dx-sidebar-container {
+    overflow: visible;
+    width: var(--dx-sidebar-width-icon);
+}
+
+[data-collapsible="icon"] .dx-sidebar-inner {
+    overflow: visible;
+}
+
+[data-variant="sidebar"][data-side="left"] .dx-sidebar-container {
+    border-right: 1px solid var(--dx-sidebar-border);
+}
+
+[data-variant="sidebar"][data-side="right"] .dx-sidebar-container {
+    border-left: 1px solid var(--dx-sidebar-border);
+}
+
+[data-variant="floating"] .dx-sidebar-container,
+[data-variant="inset"] .dx-sidebar-container {
+    padding: 0.5rem;
+}
+
+[data-variant="floating"][data-collapsible="icon"] .dx-sidebar-container,
+[data-variant="inset"][data-collapsible="icon"] .dx-sidebar-container {
+    width: calc(var(--dx-sidebar-width-icon) + 1rem + 2px);
+}
+
+.dx-sidebar-inner {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 0.25rem;
+    background: var(--dx-sidebar-background);
+}
+
+[data-variant="floating"] .dx-sidebar-inner {
+    border: 1px solid var(--dx-sidebar-border);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.dx-sidebar-static {
+    display: flex;
+    width: var(--dx-sidebar-width);
+    height: 100%;
+    flex-direction: column;
+    background: var(--dx-sidebar-background);
+    color: var(--dx-sidebar-foreground);
+}
+
+.dx-sidebar-sheet {
+    width: var(--dx-sidebar-width-mobile) !important;
+    padding: 0 !important;
+    background: var(--dx-sidebar-background);
+}
+
+.dx-sidebar-sheet-close {
+    display: none;
+}
+
+.dx-sidebar-mobile-inner {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+}
+
+.dx-sidebar-rail {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    bottom: 0;
+    display: none;
+    width: 1rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: ew-resize;
+    transform: translateX(-50%);
+    transition: all 200ms ease-out;
+}
+
+@media (width >=640px) {
+    .dx-sidebar-rail {
+        display: flex;
+    }
+}
+
+.dx-sidebar-rail::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 2px;
+    content: "";
+}
+
+.dx-sidebar-rail:hover::after {
+    background: var(--dx-sidebar-border);
+}
+
+[data-side="left"] .dx-sidebar-rail {
+    right: -1rem;
+    cursor: w-resize;
+}
+
+[data-side="right"] .dx-sidebar-rail {
+    left: 0;
+    cursor: e-resize;
+}
+
+[data-side="left"][data-state="collapsed"] .dx-sidebar-rail {
+    cursor: e-resize;
+}
+
+[data-side="right"][data-state="collapsed"] .dx-sidebar-rail {
+    cursor: w-resize;
+}
+
+[data-collapsible="offcanvas"] .dx-sidebar-rail {
+    transform: translateX(0);
+}
+
+[data-collapsible="offcanvas"] .dx-sidebar-rail::after {
+    left: 100%;
+}
+
+[data-collapsible="offcanvas"] .dx-sidebar-rail:hover {
+    background: var(--dx-sidebar-background);
+}
+
+[data-side="left"][data-collapsible="offcanvas"] .dx-sidebar-rail {
+    right: -0.5rem;
+}
+
+[data-side="right"][data-collapsible="offcanvas"] .dx-sidebar-rail {
+    left: -0.5rem;
+}
+
+.dx-sidebar-inset {
+    position: relative;
+    display: flex;
+    width: 100%;
+    flex: 1 1 0%;
+    flex-direction: column;
+    background: inherit;
+}
+
+[data-variant="inset"] ~ .dx-sidebar-inset {
+    border-radius: 0.75rem;
+    margin: 0.5rem;
+    margin-left: 0;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+[data-variant="inset"][data-state="collapsed"] ~ .dx-sidebar-inset {
+    margin-left: 0.5rem;
+}
+
+[data-variant="inset"][data-side="right"] ~ .dx-sidebar-inset {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+[data-variant="inset"][data-side="right"][data-state="collapsed"]
+    ~ .dx-sidebar-inset {
+    margin-right: 0.5rem;
+}
+
+.dx-sidebar-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dx-sidebar-content {
+    display: flex;
+    overflow: hidden auto;
+    min-height: 0;
+    flex: 1 1 0%;
+    flex-direction: column;
+    gap: 0.25rem;
+}

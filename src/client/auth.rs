@@ -1,12 +1,16 @@
 use dioxus::CapturedError;
 use dioxus::prelude::*;
 
+use super::components::Button;
+use crate::client::components::TabContent;
+use crate::client::components::TabList;
+use crate::client::components::TabTrigger;
+use crate::client::components::Tabs;
 use crate::user::api::{sign_in, sign_up};
 
-#[derive(PartialEq)]
-enum Tab {
-    SignIn,
-    SignUp,
+#[derive(Clone, Copy)]
+pub struct AuthenticationState {
+    authorized: Signal<bool>,
 }
 
 /// Renders an action's `CapturedError` as a plain message for the user, without
@@ -50,7 +54,7 @@ pub fn AuthView(authorized: Signal<bool>) -> Element {
 }
 
 #[component]
-fn SignInForm(authorized: Signal<bool>) -> Element {
+fn SignInForm() -> Element {
     let mut username = use_signal(String::new);
     let mut password = use_signal(String::new);
     let mut signin = use_action(move || try_sign_in(username, password, authorized));
@@ -86,18 +90,14 @@ fn SignInForm(authorized: Signal<bool>) -> Element {
     }
 }
 
-async fn try_sign_in(
-    username: Signal<String>,
-    password: Signal<String>,
-    mut authorized: Signal<bool>,
-) -> Result<()> {
+async fn try_sign_in(username: Signal<String>, password: Signal<String>) -> Result<()> {
     sign_in(username.to_string(), password.to_string()).await?;
-    authorized.set(true);
+    use_context::<AuthenticationState>().authorized.set(true);
     Ok(())
 }
 
 #[component]
-fn SignUpForm(authorized: Signal<bool>) -> Element {
+fn SignUpForm() -> Element {
     let mut username = use_signal(String::new);
     let mut password = use_signal(String::new);
     let mut signup = use_action(move || try_sign_up(username, password, authorized));
@@ -133,11 +133,7 @@ fn SignUpForm(authorized: Signal<bool>) -> Element {
     }
 }
 
-async fn try_sign_up(
-    username: Signal<String>,
-    password: Signal<String>,
-    authorized: Signal<bool>,
-) -> Result<()> {
+async fn try_sign_up(username: Signal<String>, password: Signal<String>) -> Result<()> {
     sign_up(username.to_string(), password.to_string()).await?;
-    try_sign_in(username, password, authorized).await
+    try_sign_in(username, password).await
 }
