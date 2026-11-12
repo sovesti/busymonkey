@@ -18,6 +18,11 @@ jobs:
           components: rustfmt
       - name: Check Rust formatting
         run: cargo fmt --all -- --check
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli --version 0.7.10 --locked
+      - name: RSX formatter
+        run: dx fmt --check
 
   build-all:
     name: Check (${{ matrix.feature }})
@@ -47,9 +52,9 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@v2
       - name: Check project
-        run: cargo check --features ${{ matrix.feature }}
+        run: cargo check --locked --target ${{ matrix.target }} --features ${{ matrix.feature }}
       - name: Run tests
         if: matrix.feature == 'server'
-        run: cargo test --features test
+        run: cargo test --locked --target ${{ matrix.target }} --features test
       - name: Check code with Clippy
         run: cargo clippy --locked --all-targets --target ${{ matrix.target }} --features ${{ matrix.feature }} -- -D warnings

@@ -648,6 +648,7 @@ dependencies = [
  "dioxus-primitives",
  "directories",
  "enigo",
+ "getrandom 0.4.3",
  "password-auth",
  "rand 0.10.3",
  "serde",

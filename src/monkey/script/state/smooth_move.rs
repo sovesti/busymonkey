@@ -1,8 +1,8 @@
 use std::{collections::VecDeque, time::Duration};
 
+use crate::monkey::Instant;
 use enigo::{Mouse, agent::Token};
 use rand::{RngExt, rngs::ThreadRng};
-use crate::monkey::Instant;
 
 use crate::monkey::script::{
     command::CommandState,
@@ -11,14 +11,7 @@ use crate::monkey::script::{
     util::vector::Vector,
 };
 
-pub fn smooth_move<'a>(
-    user: &'a User,
-    now: Instant,
-    x: i32,
-    y: i32,
-    w: i32,
-    h: i32,
-) -> impl CommandState {
+pub fn smooth_move(user: &User, now: Instant, x: i32, y: i32, w: i32, h: i32) -> impl CommandState {
     PollRateYield::new(SmoothMoveIter::new(user, x, y, w, h), user.poll_rate, now)
 }
 
@@ -31,8 +24,8 @@ struct TimeBuf<T: Clone> {
 impl<T: Clone> TimeBuf<T> {
     fn new(max: Duration) -> Self {
         Self {
-            max, 
-            total: Duration::default(), 
+            max,
+            total: Duration::default(),
             buf: VecDeque::default(),
         }
     }
@@ -75,7 +68,12 @@ impl<'a> SmoothMoveIter<'a> {
             rng: rand::rng(),
             vel: Vector::from_coords((0, 0)),
             // TODO: temporary stub, because no architecture for location polling is around yet
-            cur: Vector::from_coords(enigo::Enigo::new(&enigo::Settings::default()).unwrap().location().unwrap()),
+            cur: Vector::from_coords(
+                enigo::Enigo::new(&enigo::Settings::default())
+                    .unwrap()
+                    .location()
+                    .unwrap(),
+            ),
             pos_buf: TimeBuf::new(user.reaction_time),
         }
     }
@@ -88,7 +86,7 @@ impl<'a> TimedIterator for SmoothMoveIter<'a> {
         if self.is_finished() {
             return None;
         }
-        let dt= delta.as_secs_f32();
+        let dt = delta.as_secs_f32();
         let mxdv = self.user.max_acceleration() * dt;
         let (seen_pos, seen_vel) = self.pos_buf.back().unwrap_or((self.cur, self.vel));
         let off = self.target - seen_pos;
@@ -97,7 +95,7 @@ impl<'a> TimedIterator for SmoothMoveIter<'a> {
         dv = dv.clamp_len(mxdv);
         dv += off.clamp_len((mxdv * mxdv - dv.sqlen()).clamp(0f32, mxdv * mxdv).sqrt());
         let proximity = off.len().clamp(0f32, 500f32) / 500f32;
-        
+
         dv = dv.rotate(self.rng.random_range(-0.4 * proximity..0.4 * proximity));
         self.vel += dv;
         self.vel = self.vel.clamp_len(self.user.max_speed * proximity);

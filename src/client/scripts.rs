@@ -15,7 +15,7 @@ struct ShortcutKeys {
 }
 
 impl ShortcutKeys {
-    fn to_label(&self) -> String {
+    fn to_label(self) -> String {
         let mut label = String::new();
 
         if self.modifiers.contains(Modifiers::CONTROL) {
@@ -69,7 +69,7 @@ pub fn ScriptsView() -> Element {
     provide_context(use_signal(ScriptSettingsRegistry::new));
 
     rsx! {
-        Settings {},
+        Settings {}
         style {
             ".shortcut-input:focus {{
                 outline: 2px solid #2563eb;
@@ -78,26 +78,21 @@ pub fn ScriptsView() -> Element {
             }}"
         }
 
-        h2 {
-            "Keyboard Shortcuts"
-        }
+        h2 { "Keyboard Shortcuts" }
 
-        table {
-            style: "border-collapse: separate; border-spacing: 24px 10px;",
+        table { style: "border-collapse: separate; border-spacing: 24px 10px;",
 
             thead {
                 tr {
                     th { "Shortcut" }
-                    th { "Action"}
+                    th { "Action" }
                     th { "Delete" }
                 }
             }
             tbody {
                 for (index, binding) in shortcuts().into_iter().enumerate() {
                     tr {
-                        td {
-                            {binding.keys.to_label()}
-                        }
+                        td { {binding.keys.to_label()} }
 
                         td {
                             select {
@@ -106,17 +101,14 @@ pub fn ScriptsView() -> Element {
                                 },
 
                                 onchange: move |event| {
-                                    if event.value() == "toggle_script" {
-                                        if let Some(item) = shortcuts.write().get_mut(index) {
-                                            item.action = ShortcutAction::ToggleScript;
-                                        }
+                                    if event.value() == "toggle_script"
+                                        && let Some(item) = shortcuts.write().get_mut(index)
+                                    {
+                                        item.action = ShortcutAction::ToggleScript;
                                     }
                                 },
 
-                                option {
-                                    value: "toggle_script",
-                                    "Start/Stop script"
-                                }
+                                option { value: "toggle_script", "Start/Stop script" }
                             }
                         }
 
@@ -165,26 +157,20 @@ pub fn ScriptsView() -> Element {
                     || code_text == "Escape"
                 {
                     recognized = true;
-                } else if let Some(number) = code_text.strip_prefix("F") {
-                    if let Ok(n) = number.parse::<u8>() {
-                        if (1..=12).contains(&n) {
-                            recognized = true;
-                        }
-                    }
+                } else if let Some(number) = code_text.strip_prefix("F")
+                    && let Ok(n) = number.parse::<u8>()
+                    && (1..=12).contains(&n)
+                {
+                    recognized = true;
                 }
 
                 if recognized {
                     let modifiers = event.modifiers()
                         & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
-
-                    let keys = ShortcutKeys {
-                        code,
-                        modifiers,
-                    };
-
+                    let keys = ShortcutKeys { code, modifiers };
                     captured_keys.set(Some(keys));
                 }
-            }
+            },
         }
         button {
             style: "background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; cursor: pointer; margin-right: 10px;",
@@ -207,11 +193,11 @@ pub fn ScriptsView() -> Element {
                         .any(|binding| binding.keys == keys);
 
                     if !exists {
-                        shortcuts.write().push(ShortcutBinding {
+                        let binding = ShortcutBinding {
                             keys,
                             action: ShortcutAction::ToggleScript,
-                        });
-
+                        };
+                        shortcuts.write().push(binding);
                         captured_keys.set(None);
                     }
                 }
@@ -219,14 +205,9 @@ pub fn ScriptsView() -> Element {
             "Add Shortcut"
         }
 
-        p {
-            "Press space to toggle a script"
-        },
+        p { "Press space to toggle a script" }
         if let Some(Err(err)) = script.value() {
-            p {
-                class: "text-red",
-                {err.to_string()}
-            }
+            p { class: "text-red", {err.to_string()} }
         }
     }
 }
@@ -242,12 +223,13 @@ fn toggle_script(script: &mut Action<(), ()>) {
 
 #[cfg(feature = "desktop")]
 fn use_shortcut_on_desktop(mut script: Action<(), ()>) {
-    dioxus::desktop::use_global_shortcut(KeyCode::Space, move |st| {
+    if let Err(err) = dioxus::desktop::use_global_shortcut(KeyCode::Space, move |st| {
         if st == dioxus::desktop::HotKeyState::Released {
             return;
         }
 
         toggle_script(&mut script);
-    })
-    .unwrap();
+    }) {
+        error!("Failed to register the script shortcut: {err:?}");
+    }
 }

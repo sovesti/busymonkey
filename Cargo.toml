@@ -30,7 +30,10 @@ tower = { version = "0.5.3", optional = true }
 tower-http = { version = "0.7.1", optional = true }
 wasmtimer = "0.4.3"
 
-[dev-dependencies]
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.4.3", features = ["wasm_js"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 axum-test = "21.1.0"
 
 [features]
@@ -54,6 +57,5 @@ test = ["server"]
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }
-# google rust style : see docs/CODE_STYLE.md.
 wildcard_imports = "warn"
 unwrap_used = "warn"

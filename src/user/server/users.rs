@@ -147,8 +147,7 @@ pub mod test {
                 .iter()
                 .find(|&(user, _)| id == *user)
                 .cloned()
-                // first to change
-                .unwrap()
+                .ok_or_else(|| anyhow!("permission not found for user {id}"))?
                 .1)
         }
     }

@@ -33,7 +33,7 @@ pub fn Settings() -> Element {
             },
             for param in params.into_iter() {
                 ParameterControl { initial: registry().current_value(&param.name), param }
-            },
+            }
             button {
                 class: "rounded-m m-1 px-1 py-2 hover:bg-sky-100 cursor-pointer",
                 r#type: "submit",
@@ -49,11 +49,25 @@ fn ParameterControl(param: Parameter, initial: String) -> Element {
     rsx! {
         match param.schema {
             ParameterSchema::Float(schema) => {
-                rsx! { float::Control { name, title: param.label, initial, schema } }
-            },
+                rsx! {
+                    float::Control {
+                        name,
+                        title: param.label,
+                        initial,
+                        schema,
+                    }
+                }
+            }
             ParameterSchema::Duration(schema) => {
-                rsx! { duration::Control { name, title: param.label, initial, schema } }
-            },
+                rsx! {
+                    duration::Control {
+                        name,
+                        title: param.label,
+                        initial,
+                        schema,
+                    }
+                }
+            }
         }
     }
 }

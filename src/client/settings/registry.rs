@@ -46,10 +46,10 @@ impl ScriptSettingsRegistry {
     }
 }
 
-fn serialize_form(data: Rc<FormData>) -> anyhow::Result<String> {
+fn serialize_form(_data: Rc<FormData>) -> anyhow::Result<String> {
     #[cfg(feature = "desktop")]
     {
-        serialized(data)
+        serialized(_data)
     }
     #[cfg(any(feature = "server", feature = "web"))]
     {

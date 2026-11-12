@@ -11,8 +11,14 @@ pub fn Control(name: String, title: String, initial: String, schema: DurationSch
     let mut value = use_signal(|| initial);
     let label = use_memo(move || format!("{title}: {}", format_time(from_nanos(value()))));
     rsx! {
-        input { class: "hidden", r#type: "number", id: name.clone(), name: name.clone(), value },
-        label { for: name, "{label}" },
+        input {
+            class: "hidden",
+            r#type: "number",
+            id: name.clone(),
+            name: name.clone(),
+            value,
+        }
+        label { r#for: name, "{label}" }
         Slider {
             horizontal: true,
             min: into_nanos(schema.from),
@@ -20,7 +26,7 @@ pub fn Control(name: String, title: String, initial: String, schema: DurationSch
             step: into_nanos(schema.to - schema.from) / 100.0,
             id: name.clone(),
             on_value_change: move |updated: f64| value.set(updated),
-            value: Some(value())
+            value: Some(value()),
         }
     }
 }
