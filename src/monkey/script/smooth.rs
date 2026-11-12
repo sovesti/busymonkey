@@ -1,12 +1,16 @@
 use rand::{RngExt, rngs::ThreadRng};
 
-use enigo::agent::Agent;
 use super::super::model::Token;
 use crate::monkey::{
-    Instant, engine, script::{
-        MonkeyScript, command::{Command, CommandState, MicroCommand}, state::{once::Once, smooth_move::smooth_move}, user::{User, UserBuilder},
+    Instant, engine,
+    script::{
+        MonkeyScript,
+        command::{Command, CommandState, MicroCommand},
+        state::{once::Once, smooth_move::smooth_move},
+        user::{User, UserBuilder},
     },
 };
+use enigo::agent::Agent;
 
 pub struct SmoothState<'a> {
     user: &'a User,
@@ -45,13 +49,9 @@ fn micro_command_state<'a>(
 impl<'a> MonkeyScript for SmoothState<'a> {
     fn poll_action(&mut self) -> Option<Token> {
         loop {
-            match &mut self.state {
-                Some(state) => {
-                    if !state.is_finished() {
-                        return state.poll_action();
-                    }
-                }
-                None => return None,
+            let state = self.state.as_mut()?;
+            if !state.is_finished() {
+                return state.poll_action();
             }
             self.state = self
                 .iter
@@ -66,13 +66,15 @@ impl<'a> MonkeyScript for SmoothState<'a> {
 
     fn handle_timeout(&mut self, now: Instant) {
         self.now = now;
-        self.state.as_mut().map(|state| state.handle_timeout(now));
+        if let Some(state) = self.state.as_mut() {
+            state.handle_timeout(now);
+        }
     }
 }
 
-impl<'a> CommandState for SmoothState<'a> {
+impl CommandState for SmoothState<'_> {
     fn is_finished(&mut self) -> bool {
-        matches!(self.state, None)
+        self.state.is_none()
     }
 }
 
@@ -81,7 +83,7 @@ fn random_move(rng: &mut ThreadRng) -> Command {
         rng.random_range(200..1000),
         rng.random_range(200..1000),
         10,
-        10
+        10,
     ))
 }
 

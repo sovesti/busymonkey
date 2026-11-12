@@ -23,25 +23,31 @@ fn readable_error(err: &CapturedError) -> String {
 }
 
 #[component]
-pub fn AuthView() -> Element {
+pub fn AuthView(authorized: Signal<bool>) -> Element {
+    let mut tab = use_signal(|| Tab::SignIn);
     rsx! {
-        Tabs {
-            default_value: "signin",
-            horizontal: true,
-            max_width: "16rem",
-            TabList {
-                TabTrigger { value: "signin".to_string(), index: 0usize, "Sign in" }
-                TabTrigger { value: "signup".to_string(), index: 1usize, "Sign up" }
-            },
-            TabContent {
-                index: 0usize,
-                value: "signin".to_string(),
-                SignInForm {}
-            },
-            TabContent {
-                index: 1usize,
-                value: "signup".to_string(),
-                SignUpForm {}
+        div { class: "flex flex-col w-1/3 min-w-60 justify-self-center",
+            div { class: "flex flex-row",
+                button {
+                    class: "flex-1 rounded-m m-1 px-1 py-2 hover:bg-sky-100 cursor-pointer transition-colors",
+                    class: if *tab.read() == Tab::SignIn { "bg-sky-200" } else { "" },
+                    onclick: move |_| tab.set(Tab::SignIn),
+                    "Sign in"
+                }
+                button {
+                    class: "flex-1 rounded-m m-1 px-1 py-2 hover:bg-sky-100 cursor-pointer transition-colors",
+                    class: if *tab.read() == Tab::SignUp { "bg-sky-200" } else { "" },
+                    onclick: move |_| tab.set(Tab::SignUp),
+                    "Sign up"
+                }
+            }
+            match *tab.read() {
+                Tab::SignIn => rsx! {
+                    SignInForm { authorized }
+                },
+                Tab::SignUp => rsx! {
+                    SignUpForm { authorized }
+                },
             }
         }
     }
@@ -51,31 +57,35 @@ pub fn AuthView() -> Element {
 fn SignInForm() -> Element {
     let mut username = use_signal(String::new);
     let mut password = use_signal(String::new);
-    let mut signin = use_action(move || try_sign_in(username, password));
+    let mut signin = use_action(move || try_sign_in(username, password, authorized));
     rsx! {
-        div {
-            class: "flex flex-col",
+        div { class: "flex flex-col",
             input {
                 class: "flex-1 m-1 p-2",
                 oninput: move |e: FormEvent| username.set(e.value()),
                 placeholder: "Name",
-                value: username
-            },
+                value: username,
+            }
             input {
                 class: "flex-1 m-1 p-2",
                 oninput: move |e: FormEvent| password.set(e.value()),
                 placeholder: "Password",
-                type: "password",
-                value: password
-            },
-            Button {
+                r#type: "password",
+                value: password,
+            }
+            button {
+                class: "w-1/2 rounded-xl m-1 px-4 py-2 bg-sky-600 text-white hover:bg-sky-700 active:bg-sky-800 cursor-pointer transition-colors self-center",
                 onclick: move |_| signin.call(),
                 disabled: signin.pending(),
-                if signin.pending() { "Checking..." } else { "Sign in" }
-            },
+                if signin.pending() {
+                    "Checking..."
+                } else {
+                    "Sign in"
+                }
+            }
             if let Some(Err(err)) = signin.value() {
                 p { "{readable_error(&err)}" }
-            },
+            }
         }
     }
 }
@@ -90,28 +100,32 @@ async fn try_sign_in(username: Signal<String>, password: Signal<String>) -> Resu
 fn SignUpForm() -> Element {
     let mut username = use_signal(String::new);
     let mut password = use_signal(String::new);
-    let mut signup = use_action(move || try_sign_up(username, password));
+    let mut signup = use_action(move || try_sign_up(username, password, authorized));
     rsx! {
-        div {
-            class: "flex flex-col",
+        div { class: "flex flex-col",
             input {
                 class: "flex-1 m-1 p-2",
                 oninput: move |e: FormEvent| username.set(e.value()),
                 placeholder: "Name",
-                value: username
-            },
+                value: username,
+            }
             input {
                 class: "flex-1 m-1 p-2",
                 oninput: move |e: FormEvent| password.set(e.value()),
                 placeholder: "Password",
-                type: "password",
-                value: password
-            },
-            Button {
+                r#type: "password",
+                value: password,
+            }
+            button {
+                class: "w-1/2 rounded-xl m-1 px-4 py-2 bg-sky-600 text-white hover:bg-sky-700 active:bg-sky-800 cursor-pointer transition-colors self-center",
                 onclick: move |_| signup.call(),
                 disabled: signup.pending(),
-                if signup.pending() { "Registering..." } else { "Sign up" }
-            },
+                if signup.pending() {
+                    "Registering..."
+                } else {
+                    "Sign up"
+                }
+            }
             if let Some(Err(err)) = signup.value() {
                 p { "{readable_error(&err)}" }
             }

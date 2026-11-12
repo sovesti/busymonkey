@@ -1,7 +1,7 @@
+use crate::monkey::Instant;
 use crate::monkey::script::{MonkeyScript, command::CommandState};
 use enigo::agent::Token;
 use std::time::Duration;
-use crate::monkey::Instant;
 
 pub trait TimedIterator {
     type Item;
@@ -20,7 +20,7 @@ pub struct PollRateYield<T: TimedIterator<Item = Token>> {
 impl<T: TimedIterator<Item = Token>> PollRateYield<T> {
     pub fn new(iter: T, rate: Duration, now: Instant) -> Self {
         Self {
-            iter: iter,
+            iter,
             rate,
             now,
             last: now,

@@ -56,25 +56,10 @@ impl ScriptSettingsRegistry {
     }
 }
 
-impl Default for ScriptSettingsRegistry {
-    fn default() -> Self {
-        Self {
-            chosen: "dummy".to_owned(),
-            known: HashMap::new(),
-        }
-    }
-}
-
-impl SettingsCategory for ScriptSettingsRegistry {
-    fn name() -> String {
-        "scripts".to_owned()
-    }
-}
-
-fn serialize_form(data: Rc<FormData>) -> anyhow::Result<json::Value> {
+fn serialize_form(_data: Rc<FormData>) -> anyhow::Result<String> {
     #[cfg(feature = "desktop")]
     {
-        serialized(data)
+        serialized(_data)
     }
     #[cfg(any(feature = "server", feature = "web"))]
     {

@@ -5,15 +5,15 @@ use super::{Agent, Keyboard, Mouse};
 pub struct BrowserMonkeyEngine {}
 
 impl Mouse for BrowserMonkeyEngine {
-    fn button(&mut self, button: Button, direction: Direction) -> InputResult<()> {
+    fn button(&mut self, _button: Button, _direction: Direction) -> InputResult<()> {
         todo!()
     }
 
-    fn move_mouse(&mut self, x: i32, y: i32, coordinate: Coordinate) -> InputResult<()> {
+    fn move_mouse(&mut self, _x: i32, _y: i32, _coordinate: Coordinate) -> InputResult<()> {
         todo!()
     }
 
-    fn scroll(&mut self, length: i32, axis: Axis) -> InputResult<()> {
+    fn scroll(&mut self, _length: i32, _axis: Axis) -> InputResult<()> {
         todo!()
     }
 
@@ -27,15 +27,15 @@ impl Mouse for BrowserMonkeyEngine {
 }
 
 impl Keyboard for BrowserMonkeyEngine {
-    fn fast_text(&mut self, text: &str) -> InputResult<Option<()>> {
+    fn fast_text(&mut self, _text: &str) -> InputResult<Option<()>> {
         todo!()
     }
 
-    fn key(&mut self, key: Key, direction: Direction) -> InputResult<()> {
+    fn key(&mut self, _key: Key, _direction: Direction) -> InputResult<()> {
         todo!()
     }
 
-    fn raw(&mut self, keycode: u16, direction: Direction) -> InputResult<()> {
+    fn raw(&mut self, _keycode: u16, _direction: Direction) -> InputResult<()> {
         todo!()
     }
 }

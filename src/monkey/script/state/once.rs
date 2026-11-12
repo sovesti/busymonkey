@@ -1,5 +1,5 @@
-use enigo::agent::Token;
 use crate::monkey::Instant;
+use enigo::agent::Token;
 
 use crate::monkey::script::{MonkeyScript, command::CommandState, user::User};
 
@@ -31,6 +31,6 @@ impl MonkeyScript for Once {
 
 impl CommandState for Once {
     fn is_finished(&mut self) -> bool {
-        matches!(self.token, None)
+        self.token.is_none()
     }
 }

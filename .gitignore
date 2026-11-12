@@ -5,5 +5,7 @@
 /CD/config.toml
 
 # macOS
-
 .DS_Store
+
+# obsi
+.obsidian

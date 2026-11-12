@@ -33,10 +33,7 @@ impl Default for DummyState {
 impl DummyState {
     fn increment(&mut self) {
         self.position += 1;
-        if self.position % 50 == 0 {
-            self.finished = Instant::now();
-        }
-        self.updated = self.updated + Duration::from_millis(20);
+        self.updated += Duration::from_millis(20);
     }
 
     fn move_to(&self, speed: f64) -> Token {

@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use async_trait::async_trait;
 use axum_session::{SessionConfig, SessionLayer, SessionStore};
-use axum_session_auth::*;
+use axum_session_auth::{Auth, AuthConfig, Authentication, HasPermission, Rights};
 use axum_session_sqlx::SessionPgPool;
 use dioxus::prelude::*;
 use dioxus_server::http;

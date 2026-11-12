@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use enigo::agent::Token;
 use crate::monkey::Instant;
+use enigo::agent::Token;
 
 use crate::monkey::script::{MonkeyScript, command::CommandState};
 

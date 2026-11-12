@@ -4,8 +4,8 @@ pub(crate) mod model;
 pub(crate) mod script;
 
 #[cfg(any(feature = "server", feature = "desktop"))]
-pub(crate) use tokio::time::*;
+pub(crate) use tokio::time::{Instant, sleep_until};
 #[cfg(feature = "web")]
-pub(crate) use wasmtimer::std::*;
+pub(crate) use wasmtimer::std::Instant;
 #[cfg(feature = "web")]
-pub(crate) use wasmtimer::tokio::*;
+pub(crate) use wasmtimer::tokio::sleep_until;

@@ -6,30 +6,27 @@ use crate::client::components::Slider;
 use crate::monkey::model::parameters::DurationSchema;
 
 #[component]
-pub fn Control(
-    name: String,
-    title: String,
-    initial: serde_json::Value,
-    schema: DurationSchema,
-) -> Element {
-    let mut value = use_signal(|| {
-        initial
-            .as_str()
-            .and_then(|val| val.parse().ok())
-            .unwrap_or_default()
-    });
-    let label = use_memo(move || format!("{title}: {}", format_time(from_millis(value()))));
+pub fn Control(name: String, title: String, initial: String, schema: DurationSchema) -> Element {
+    let initial = initial.parse().unwrap_or_default();
+    let mut value = use_signal(|| initial);
+    let label = use_memo(move || format!("{title}: {}", format_time(from_nanos(value()))));
     rsx! {
-        input { class: "hidden", r#type: "number", id: name.clone(), name: name.clone(), value },
-        label { for: name, "{label}" },
+        input {
+            class: "hidden",
+            r#type: "number",
+            id: name.clone(),
+            name: name.clone(),
+            value,
+        }
+        label { r#for: name, "{label}" }
         Slider {
             horizontal: true,
-            min: into_millis(schema.from),
-            max: into_millis(schema.to),
-            step: into_millis(schema.to - schema.from) / 100.0,
+            min: into_nanos(schema.from),
+            max: into_nanos(schema.to),
+            step: into_nanos(schema.to - schema.from) / 100.0,
             id: name.clone(),
-            on_value_change: move |updated: f64| value.set(updated as u64),
-            value: Some(value() as f64)
+            on_value_change: move |updated: f64| value.set(updated),
+            value: Some(value()),
         }
     }
 }
