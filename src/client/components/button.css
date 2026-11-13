@@ -1,0 +1,38 @@
+.dx-button {
+    display: inline-flex;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    gap: 0.5rem;
+    line-height: 1.25rem;
+    outline: none;
+    transition-duration: 150ms;
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+}
+
+.dx-button svg {
+    flex-shrink: 0;
+    pointer-events: none;
+}
+
+.dx-button[data-size="default"] {
+    height: 2.5rem;
+    padding: 0.5rem;
+}
+
+.dx-button[data-size="default"]:has(> svg) {
+    padding-inline: 0.5rem;
+}
+
+.dx-button[data-size="icon"] {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding-inline: 0.5rem;
+}
