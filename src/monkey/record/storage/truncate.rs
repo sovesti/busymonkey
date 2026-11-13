@@ -42,6 +42,9 @@ impl<S: RecordingStorage> TruncateMoves<S> {
     }
 
     fn truncate_abs_move(&mut self, next: TimedToken) {
+        if is_zero_scroll(&next) {
+            return;
+        }
         if is_abs_move(&next) {
             self.store(next);
             return;
@@ -55,6 +58,10 @@ impl<S: RecordingStorage> TruncateMoves<S> {
     fn store(&mut self, next: TimedToken) {
         let _ = self.previous.insert(next);
     }
+}
+
+fn is_zero_scroll(next: &TimedToken) -> bool {
+    matches!(next.token(), Token::Scroll(x, _) if *x == 0)
 }
 
 fn is_abs_move(next: &TimedToken) -> bool {

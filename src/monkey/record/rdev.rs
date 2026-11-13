@@ -79,6 +79,8 @@ impl RdevState {
 
 struct RdevEvent(rdev::Event);
 
+const WHEEL_DELTA: i32 = 120;
+
 impl TryFrom<RdevEvent> for Vec<TimedToken> {
     type Error = anyhow::Error;
 
@@ -92,8 +94,8 @@ impl TryFrom<RdevEvent> for Vec<TimedToken> {
                 &[Token::MoveMouse(x as i32, y as i32, Coordinate::Abs)]
             }
             EventType::Wheel { delta_x, delta_y } => &[
-                Token::Scroll(delta_x as i32, Axis::Horizontal),
-                Token::Scroll(delta_y as i32, Axis::Vertical),
+                Token::Scroll(delta_x as i32 * WHEEL_DELTA, Axis::Horizontal),
+                Token::Scroll(delta_y as i32 * WHEEL_DELTA, Axis::Vertical),
             ],
         };
         let timestamp = event.time.duration_since(UNIX_EPOCH)?;

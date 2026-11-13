@@ -1,9 +1,8 @@
-use chrono::{DateTime, Local};
 use dioxus::prelude::*;
 use dioxus_icons::lucide::{Keyboard, Mouse, MousePointer2, MousePointerClick};
 
 use crate::client::components::Button;
-use crate::monkey::model::{Direction, TimedToken, Token};
+use crate::monkey::model::{TimedToken, Token};
 use crate::monkey::record::record_to;
 use crate::monkey::record::storage::linear::{Linear, LinearStoreExt};
 use crate::monkey::record::storage::stoppable::{Stoppable, StoppableStoreExt};
@@ -16,9 +15,8 @@ pub fn TemplatesView() -> Element {
     record_to(storage);
     rsx! {
         div {
-            class: "flex flex-col",
+            class: "flex flex-col min-h-0 items-center m-1",
             Button {
-                class: "flex-1",
                 disabled: !running(),
                 onclick: move |_| running.set(false),
                 "Stop"
@@ -31,17 +29,31 @@ pub fn TemplatesView() -> Element {
 #[component]
 fn TokensTable(store: Store<Vec<TimedToken>>) -> Element {
     rsx! {
-        table {
-            class: "flex-4",
-            thead {
-                tr {
-                    th { "Action" }
-                    th { "Time" }
+        div {
+            class: "grow p-2 min-h-0 w-3/4 overflow-auto",
+            table {
+                class: "min-h-0 w-full table-fixed",
+                thead {
+                    class: "w-full",
+                    tr {
+                        class: "w-full",
+                        th {
+                            class: "w-1/8",
+                            ""
+                        }
+                        th {
+                            class: "w-1/2",
+                            "Action"
+                        }
+                        th {
+                            "Time"
+                        }
+                    }
                 }
-            }
-            tbody {
-                for token in store.iter() {
-                    tr { TokenRow { token } }
+                tbody {
+                    for token in store.iter() {
+                        tr { TokenRow { token } }
+                    }
                 }
             }
         }
@@ -52,12 +64,16 @@ fn TokensTable(store: Store<Vec<TimedToken>>) -> Element {
 fn TokenRow(token: ReadSignal<TimedToken>) -> Element {
     rsx! {
         td {
-            class: "flex flex-row",
+            class: "m-1 p-1",
             TokenIcon { token }
-            {format_token(token)}
         }
         td {
-            {format_time(token)}
+            class: "m-1 p-1",
+            "{token}"
+        }
+        td {
+            class: "m-1 p-1 text-center",
+            {token.read().format_time()}
         }
     }
 }
@@ -69,30 +85,10 @@ fn use_storage(stopped: ReadSignal<bool>) -> Store<Stoppable<TruncateMoves<Linea
 #[component]
 fn TokenIcon(token: ReadSignal<TimedToken>) -> Element {
     match token.read().token() {
-        Token::Key(_, _) => rsx! { Keyboard {} },
-        Token::Button(_, _) => rsx! { MousePointerClick {} },
-        Token::MoveMouse(_, _, _) => rsx! { MousePointer2 {} },
-        Token::Scroll(_, _) => rsx! { Mouse {} },
+        Token::Key(_, _) => rsx! { Keyboard { size: 20 } },
+        Token::Button(_, _) => rsx! { MousePointerClick { size: 20 } },
+        Token::MoveMouse(_, _, _) => rsx! { MousePointer2 { size: 20 } },
+        Token::Scroll(_, _) => rsx! { Mouse { size: 20 } },
         _ => rsx! {},
     }
-}
-
-fn format_token(token: ReadSignal<TimedToken>) -> String {
-    match token.read().token() {
-        Token::Key(key, Direction::Press) => format!("Press {key:?}"),
-        Token::Key(key, _) => format!("Release {key:?}"),
-        Token::Button(button, _) => format!("Click {button:?} mouse button"),
-        Token::MoveMouse(x, y, _) => format!("Move mouse to ({x}, {y})"),
-        Token::Scroll(x, _) => format!(
-            "Scroll {} pixels {}",
-            x.abs(),
-            if x.is_positive() { "down" } else { "up" }
-        ),
-        _ => String::new(),
-    }
-}
-
-fn format_time(token: ReadSignal<TimedToken>) -> String {
-    let local: DateTime<Local> = (DateTime::UNIX_EPOCH + token.read().timestamp()).into();
-    local.format("%H:%M:%S").to_string()
 }
