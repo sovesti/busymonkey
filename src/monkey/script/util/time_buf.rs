@@ -3,25 +3,25 @@ use std::{collections::VecDeque, time::Duration};
 use crate::monkey::Instant;
 
 /// Buffer that stores objects with timestamps, and returns the objects with
-/// the lates timestamp no earlier than `max` duration before last received
+/// the lates timestamp no earlier than `delay` duration before last received
 /// timestamp
 pub struct TimeBuf<T> {
-    max: Duration,
+    delay: Duration,
     from: Instant,
     buf: VecDeque<(T, Instant)>,
 }
 
 impl<T> TimeBuf<T> {
-    pub fn new(max: Duration, now: Instant) -> Self {
+    pub fn new(delay: Duration, now: Instant) -> Self {
         Self {
-            max,
-            from: now - max,
+            delay,
+            from: now - delay,
             buf: VecDeque::default(),
         }
     }
 
     pub fn handle_timeout(&mut self, now: Instant) {
-        self.from = now - self.max;
+        self.from = now - self.delay;
         while let Some((obj, time)) = self.buf.pop_back() {
             if let Some((_, next_time)) = self.buf.back()
                 && self.from >= *next_time
@@ -38,7 +38,7 @@ impl<T> TimeBuf<T> {
         self.handle_timeout(at);
     }
 
-    pub fn back(&mut self) -> Option<&T> {
+    pub fn back(&self) -> Option<&T> {
         self.buf.back().and_then(
             |(obj, time)| {
                 if self.from >= *time { Some(obj) } else { None }

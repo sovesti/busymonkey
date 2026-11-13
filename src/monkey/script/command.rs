@@ -1,9 +1,12 @@
-use crate::monkey::script::TokenProto;
 use enigo::{Button, Direction, Key};
-use std::iter::{Iterator, once, repeat};
+use std::{
+    iter::{Iterator, once, repeat},
+    time::Duration,
+};
 
 /// Middle-level commands to be turned into sequence of `Token`s
 pub enum MicroCommand {
+    Idle(Duration),
     MoveToRect(i32, i32, i32, i32),
     MouseButton(Button, Direction),
     Key(Key, Direction),

@@ -1,9 +1,13 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vector(pub f32, pub f32);
 
 impl Vector {
+    pub fn zero() -> Self {
+        Self(0f32, 0f32)
+    }
+
     pub fn from_coords(coords: (i32, i32)) -> Self {
         Self(coords.0 as f32, coords.1 as f32)
     }
@@ -42,6 +46,14 @@ impl Vector {
         } else {
             self * (max_len / len)
         }
+    }
+}
+
+impl Neg for Vector {
+    type Output = Vector;
+
+    fn neg(self) -> Self::Output {
+        Self(-self.0, -self.1)
     }
 }
 

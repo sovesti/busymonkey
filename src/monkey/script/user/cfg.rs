@@ -17,7 +17,7 @@ pub struct UserCfg {
 
 impl UserCfg {
     pub fn max_acceleration(&self) -> f32 {
-        self.max_speed / TIME_TO_MAX_SPEED.as_secs() as f32
+        self.max_speed / TIME_TO_MAX_SPEED.as_secs_f32()
     }
 }
 

@@ -1,95 +1,108 @@
-use std::marker::PhantomData;
+use std::collections::VecDeque;
 
 use super::UserCfg;
-use crate::monkey::script::{
-    TokenProto,
-    command::Command,
-    util::{time_buf::TimeBuf, vector::Vector},
+use crate::monkey::script::user::{
+    click::{ClickBuf, ClickToken},
+    cursor::{CursorBuf, CursorState, CursorToken},
+    init::{FromInit, Init},
+    keyboard::{KeyboardBuf, KeyboardToken},
 };
-use dioxus::core::SpawnIfAsync;
 use enigo::agent::Token;
 use tokio::time::Instant;
 
-pub trait CommandProto {
-    fn into_proto(cmd: Command) -> Box<dyn UserTokenProto>;
+pub enum PreToken {
+    Skip,
+    Cursor(CursorToken),
+    Click(ClickToken),
+    Keyboard(KeyboardToken),
 }
 
-pub struct UserCommandDispatcher<T: CommandProto> {
-    active: Option<Box<dyn UserTokenProto>>,
-    state: UserState,
-    cmdproto: PhantomData<T>,
-}
-
-impl<T: CommandProto> UserCommandDispatcher<T> {
-    fn poll_proto(&mut self) {
-        while self
-            .active
-            .as_mut()
-            .map_or(true, |proto| proto.is_finished(&mut self.state))
-        {
-            if let Some(cmd) = self.state.poll_command() {
-                self.active = Some(T::into_proto(cmd));
-            } else {
-                break;
-            }
+impl PreToken {
+    fn cursor_token(self) -> CursorToken {
+        match self {
+            Self::Cursor(token) => token,
+            _ => CursorToken::default(),
         }
     }
+}
+
+impl Default for PreToken {
+    fn default() -> Self {
+        Self::Skip
+    }
+}
+
+pub trait TokenSource {
+    fn handle_pre_token(&mut self, token: PreToken);
+
+    fn poll_token(&mut self) -> Option<Token>;
+
+    fn handle_timeout(&mut self, now: Instant);
 }
 
 pub struct UserState {
     cfg: UserCfg,
     now: Instant,
-    cmds: TimeBuf<Command>,
-    cursor: TimeBuf<CursorState>,
+    cursor: CursorBuf,
+    click: ClickBuf,
+    keyboard: KeyboardBuf,
+    tokens: VecDeque<Token>,
 }
 
-impl UserState {
-    fn poll_command(&mut self) -> Option<Command> {
-        self.cmds.pop_back()
+impl FromInit for UserState {
+    fn from_init(init: &Init) -> Self {
+        Self {
+            cfg: init.cfg,
+            now: init.snap.now,
+            cursor: CursorBuf::from_init(init),
+            click: ClickBuf::from_init(init),
+            keyboard: KeyboardBuf::from_init(init),
+            tokens: VecDeque::new(),
+        }
     }
-
-    fn handle_command(&mut self, cmd: Command) {
-        self.cmds.push(cmd, self.now);
-    }
 }
 
-pub struct CursorState {
-    pub pos: Vector,
-    pub vel: Vector,
-}
-
-pub trait UserTokenProto {
-    fn poll_action(&mut self, state: &mut UserState) -> Option<Token>;
-
-    fn poll_timeout(&mut self, state: &mut UserState) -> Option<Instant>;
-
-    fn handle_timeout(&mut self, state: &mut UserState, now: Instant);
-
-    fn is_finished(&mut self, state: &mut UserState) -> bool;
-}
-
-impl<T: CommandProto> TokenProto for UserCommandDispatcher<T> {
-    fn poll_action(&mut self) -> Option<Token> {
-        self.active
-            .as_mut()
-            .map(|proto| proto.poll_action(&mut self.state))
-            .flatten()
-    }
-
-    fn poll_timeout(&mut self) -> Option<Instant> {
-        self.active
-            .as_mut()
-            .map(|proto| proto.poll_timeout(&mut self.state))
-            .flatten()
+impl TokenSource for UserState {
+    fn poll_token(&mut self) -> Option<Token> {
+        self.tokens.pop_back()
     }
 
     fn handle_timeout(&mut self, now: Instant) {
-        self.active
-            .as_mut()
-            .map(|proto| proto.handle_timeout(&mut self.state, now));
+        self.now = now;
     }
 
-    fn is_finished(&mut self) -> bool {
-        false
+    fn handle_pre_token(&mut self, token: PreToken) {
+        if let Some(token) = self
+            .cursor
+            .handle_token(token.cursor_token(), self.now, &self.cfg)
+        {
+            self.tokens.push_front(token);
+        }
     }
+}
+
+impl UserState {
+    pub fn cfg(&self) -> &UserCfg {
+        &self.cfg
+    }
+
+    pub fn now(&self) -> Instant {
+        self.now
+    }
+
+    pub fn cursor(&self) -> Option<&CursorState> {
+        self.cursor.visible()
+    }
+}
+
+/// TokenProto that reads state from and passes tokens through a `UserState`
+///
+/// Timeouts are handled at polling time
+pub trait UserTokenProto {
+    /// Put action in `state`
+    fn poll_action(&mut self, state: &mut UserState) -> PreToken;
+
+    fn poll_timeout(&mut self, state: &UserState) -> Option<Instant>;
+
+    fn is_finished(&mut self, state: &UserState) -> bool;
 }

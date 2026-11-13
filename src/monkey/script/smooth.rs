@@ -1,114 +1,130 @@
-use rand::{RngExt, rngs::ThreadRng};
+use std::{ops::Range, time::Duration};
 
-use super::super::model::Token;
+use anyhow::anyhow;
+use dioxus::prelude::*;
+use rand::{RngExt, rngs::SmallRng};
+use serde::{Deserialize, Serialize};
+
 use crate::monkey::{
-    Instant, engine,
-    script::{
-        TokenProto,
-        command::{Command, MicroCommand},
-        state::{once::Once, smooth_move::smooth_move},
-        user::{UserBuilder, UserCfg},
-    },
+    model::parameters::{Parameter, ParameterSchema, ScriptFactory},
+    script::{DynScript, command::{Command, MicroCommand}},
 };
-use enigo::agent::Agent;
 
-pub struct SmoothState<'a> {
-    user: &'a UserCfg,
-    iter: Box<dyn Iterator<Item = MicroCommand>>,
-    state: Option<Box<dyn TokenProto + 'a>>,
-    now: Instant,
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Props)]
+struct SmoothWanderCfg {
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
+    delay: Duration,
 }
 
-impl<'a> SmoothState<'a> {
-    pub fn new(user: &'a UserCfg, command: Command, now: Instant) -> Self {
-        let mut iter = command.into_micros();
-        let state = iter.next().map(|cmd| micro_command_state(user, now, cmd));
+impl Default for SmoothWanderCfg {
+    fn default() -> Self {
         Self {
-            user,
-            iter,
-            state,
-            now,
+            x: 200f64,
+            y: 200f64,
+            w: 1000f64,
+            h: 1000f64,
+            delay: Duration::from_secs(1),
         }
     }
 }
 
-fn micro_command_state<'a>(
-    user: &'a UserCfg,
-    now: Instant,
-    cmd: MicroCommand,
-) -> Box<dyn TokenProto + 'a> {
-    match cmd {
-        MicroCommand::MoveToRect(x, y, w, h) => Box::new(smooth_move(user, now, x, y, w, h)),
-        MicroCommand::Key(key, dir) => Box::new(Once::new(user, Token::Key(key, dir), now)),
-        MicroCommand::MouseButton(btn, dir) => {
-            Box::new(Once::new(user, Token::Button(btn, dir), now))
+impl SmoothWanderCfg {
+    fn ranges(&self) -> (Range<i32>, Range<i32>) {
+        let x = self.x.ceil() as i32;
+        let y = self.y.ceil() as i32;
+        let w = self.w.ceil() as i32;
+        let h = self.h.ceil() as i32;
+        (x..x + w, y..y + h)
+    }
+}
+
+struct SmoothWanderScript {
+    cfg: SmoothWanderCfg,
+    rng: SmallRng,
+    is_delay: bool,
+}
+
+impl SmoothWanderScript {
+    fn new(cfg: SmoothWanderCfg) -> Self {
+        Self {
+            cfg,
+            rng: rand::make_rng(),
+            is_delay: false,
         }
     }
 }
 
-impl<'a> TokenProto for SmoothState<'a> {
-    fn poll_action(&mut self) -> Option<Token> {
-        loop {
-            match &mut self.state {
-                Some(state) => {
-                    if !state.is_finished() {
-                        return state.poll_action();
-                    }
-                }
-                None => return None,
-            }
-            self.state = self
-                .iter
-                .next()
-                .map(|cmd| micro_command_state(self.user, self.now, cmd));
+impl Iterator for SmoothWanderScript {
+    type Item = Command;
+
+    fn next(&mut self) -> Option<Command> {
+        self.is_delay = !self.is_delay;
+        if self.is_delay {
+            println!("idle");
+            Some(Command::Single(MicroCommand::Idle(self.cfg.delay)))
+        } else {
+            let (range_x, range_y) = self.cfg.ranges();
+            let x = self.rng.random_range(range_x);
+            let y = self.rng.random_range(range_y);
+            println!("move to rect");
+            Some(Command::Single(MicroCommand::MoveToRect(
+                x - 5,
+                y - 5,
+                10,
+                10,
+            )))
         }
-    }
-
-    fn poll_timeout(&mut self) -> Option<Instant> {
-        self.state.as_mut().and_then(|state| state.poll_timeout())
-    }
-
-    fn handle_timeout(&mut self, now: Instant) {
-        self.now = now;
-        self.state.as_mut().map(|state| state.handle_timeout(now));
-    }
-
-    fn is_finished(&mut self) -> bool {
-        matches!(self.state, None)
     }
 }
 
-fn random_move(rng: &mut ThreadRng) -> Command {
-    Command::Single(MicroCommand::MoveToRect(
-        rng.random_range(200..1000),
-        rng.random_range(200..1000),
-        10,
-        10,
-    ))
+fn parse_cfg(value: serde_json::Value) -> anyhow::Result<SmoothWanderCfg> {
+    Ok(SmoothWanderCfg {
+        x: value.get("x").ok_or(anyhow!("No x value"))?.as_f64().ok_or(anyhow!("x value not float"))?,
+        y: value.get("y").ok_or(anyhow!("No y value"))?.as_f64().ok_or(anyhow!("y value not float"))?,
+        w: value.get("w").ok_or(anyhow!("No w value"))?.as_f64().ok_or(anyhow!("w value not float"))?,
+        h: value.get("h").ok_or(anyhow!("No h value"))?.as_f64().ok_or(anyhow!("h value not float"))?,
+        delay: Duration::from_secs_f64(value.get("delay").ok_or(anyhow!("No delay value"))?.as_f64().ok_or(anyhow!("delay value not float"))?),
+    })
 }
 
-#[cfg(any(feature = "desktop", feature = "web"))]
-pub async fn run_smooth_wander() -> anyhow::Result<()> {
-    println!("Goooal");
-    let user = UserBuilder::default().build();
-    let mut rng = rand::rng();
-    let mut state = SmoothState::new(&user, random_move(&mut rng), Instant::now());
-    let mut engine = engine::default_engine()?;
-    loop {
-        loop {
-            if state.is_finished() {
-                state = SmoothState::new(&user, random_move(&mut rng), Instant::now());
-            } else {
-                break;
-            }
-        }
-        if let Some(token) = state.poll_action() {
-            engine.execute(&token)?;
-            continue;
-        }
-        if let Some(time) = state.poll_timeout() {
-            crate::monkey::sleep_until(time).await;
-        }
-        state.handle_timeout(Instant::now());
-    }
+fn smooth_wander(value: serde_json::Value) -> anyhow::Result<DynScript> {
+    println!("assemble smooth wander script from settings\n{value}");
+    let cfg = parse_cfg(value);
+    println!("gives: {cfg:?}");
+    Ok(Box::new(SmoothWanderScript::new(cfg?)))
+}
+
+inventory::submit! {
+    ScriptFactory::new("dummy", || {
+        vec![
+            Parameter::new(
+                "x",
+                "Coordinate of top left corner of wander area, px",
+                ParameterSchema::float(0.0, 1920.0),
+            ),
+            Parameter::new(
+                "y",
+                "Coordinate of top left corner of wander area, px",
+                ParameterSchema::float(0.0, 1080.0),
+            ),
+            Parameter::new(
+                "w",
+                "Wander area width, px",
+                ParameterSchema::float(0.0, 1920.0),
+            ),
+            Parameter::new(
+                "h",
+                "Wander area height, px",
+                ParameterSchema::float(0.0, 1080.0),
+            ),
+            Parameter::new(
+                "delay",
+                "Delay between wanders",
+                ParameterSchema::duration(Duration::ZERO, Duration::from_secs(10)),
+            ),
+        ]
+    }, smooth_wander)
 }
