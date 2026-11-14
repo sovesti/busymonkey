@@ -2,6 +2,7 @@
 use std::path::Path;
 
 use dioxus::LaunchBuilder;
+use dioxus::desktop::tao::event_loop::{DeviceEventFilter, EventLoop, EventLoopBuilder};
 use dioxus::desktop::{
     Config, WindowBuilder, WindowCloseBehaviour, WindowEvent,
     tao::event::Event,
@@ -24,6 +25,7 @@ pub fn launch(app: fn() -> Element) {
         .with_cfg(desktop! {
             Config::new()
                 .with_window(build_window())
+                .with_event_loop(build_event_loop())
                 .with_close_behaviour(WindowCloseBehaviour::WindowHides)
         })
         .launch(app)
@@ -43,6 +45,12 @@ fn build_window() -> WindowBuilder {
     {
         builder
     }
+}
+
+fn build_event_loop<T>() -> EventLoop<T> {
+    let events = EventLoopBuilder::<T>::with_user_event().build();
+    events.set_device_event_filter(DeviceEventFilter::Always);
+    events
 }
 
 struct TrayMenu {
