@@ -1,8 +1,8 @@
+use std::collections::HashMap;
+
 use dioxus::prelude::*;
 
-use crate::client::components::Button;
-
-#[derive(Clone)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 enum ShortcutAction {
     ToggleScript,
 }
@@ -20,131 +20,120 @@ impl ShortcutKeys {
         if self.modifiers.contains(Modifiers::CONTROL) {
             label.push_str("Ctrl + ");
         }
-
         if self.modifiers.contains(Modifiers::SHIFT) {
             label.push_str("Shift + ");
         }
-
         if self.modifiers.contains(Modifiers::ALT) {
             label.push_str("Alt + ");
         }
 
         let code = self.code.to_string();
-
         let key = code
             .strip_prefix("Key")
             .or(code.strip_prefix("Digit"))
             .unwrap_or(code.as_str());
 
         label.push_str(key);
-
         label
     }
 }
 
-#[derive(Clone)]
-struct ShortcutBinding {
-    keys: ShortcutKeys,
-    action: ShortcutAction,
-}
-
 #[component]
 pub(crate) fn ShortuctSettingsView() -> Element {
-    let shortcuts = use_signal(|| {
-        vec![ShortcutBinding {
-            keys: ShortcutKeys {
+    let mut shortcuts = use_signal(|| {
+        HashMap::from([(
+            ShortcutAction::ToggleScript,
+            ShortcutKeys {
                 code: Code::Space,
                 modifiers: Modifiers::empty(),
             },
-            action: ShortcutAction::ToggleScript,
-        }]
+        )])
     });
+    let mut editing = use_signal(|| false);
 
-    let mut captured_keys = use_signal(|| None::<ShortcutKeys>);
+    let current_keys = shortcuts
+        .read()
+        .get(&ShortcutAction::ToggleScript)
+        .copied();
+
     rsx! {
         div {
-            class: "flex flex-col gap-1 w-64",
-            style {
-                ".shortcut-input:focus {{
-                    outline: 2px solid #2563eb;
-                    outline-offset: 2px;
-                    border-color: #2563eb;
-                }}"
-            }
+            class: "w-full max-w-5xl text-text",
+
             h2 {
-                "Keyboard Shortcuts"
+                class: "text-xl font-normal mb-6",
+                "Настройки горячих клавиш"
             }
-            ShortcutsTable { shortcuts }
-            input {
-                class: "shortcut-input",
-                style: "width: 220px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-right: 10px; box-sizing: border-box;",
-                placeholder: "Enter shortcut",
-                value: match captured_keys() {
-                    Some(keys) => keys.to_label(),
-                    None => String::new(),
-                },
-                readonly: true,
-                onkeydown: move |event| capture_key(event, captured_keys)
-            }
-            Button {
-                onclick: move |_| captured_keys.set(None),
-                "Clear"
-            }
-            Button {
-                onclick: move |_| add_shortcut(shortcuts, captured_keys),
-                "Add Shortcut"
-            }
-        }
-    }
-}
 
-#[component]
-fn ShortcutsTable(mut shortcuts: Signal<Vec<ShortcutBinding>>) -> Element {
-    rsx! {
-        table {
-            style: "border-collapse: separate; border-spacing: 24px 10px;",
+            table {
+                class: "w-full table-fixed border-collapse",
 
-            thead {
-                tr {
-                    th { "Shortcut" }
-                    th { "Action"}
-                    th { "Delete" }
-                }
-            }
-            tbody {
-                for (index, binding) in shortcuts().into_iter().enumerate() {
+                thead {
                     tr {
+                        th {
+                            class: "text-left font-normal text-lg pb-3",
+                            style: "width: 37%;",
+                            "Action"
+                        }
+                        th {
+                            class: "text-left font-normal text-lg pb-3",
+                            "Shortcut"
+                        }
+                        th {
+                            style: "width: 116px;",
+                        }
+                    }
+                }
+
+                tbody {
+                    tr {
+                        class: "border-t border-surface1",
+
                         td {
-                            {binding.keys.to_label()}
+                            class: "py-3 pr-3",
+                            "Start/Stop script"
                         }
 
                         td {
-                            select {
-                                value: match &binding.action {
-                                    ShortcutAction::ToggleScript => "toggle_script",
-                                },
-
-                                onchange: move |event| {
-                                    if event.value() == "toggle_script" {
-                                        if let Some(item) = shortcuts.write().get_mut(index) {
-                                            item.action = ShortcutAction::ToggleScript;
+                            class: "py-3 pr-3",
+                            if editing() {
+                                input {
+                                    class: "w-full max-w-56 rounded-md border border-surface2 bg-base px-3 py-2 text-text focus:outline-2 focus:outline-blue-500",
+                                    r#type: "text",
+                                    readonly: true,
+                                    placeholder: "Press shortcut...",
+                                    onmounted: move |element| async move {
+                                        let _ = element.data().set_focus(true).await;
+                                    },
+                                    onkeydown: move |event| {
+                                        if let Some(keys) = shortcut_from_event(&event) {
+                                            event.prevent_default();
+                                            shortcuts.write().insert(ShortcutAction::ToggleScript, keys);
+                                            editing.set(false);
                                         }
                                     }
-                                },
-
-                                option {
-                                    value: "toggle_script",
-                                    "Start/Stop script"
                                 }
+                            } else if let Some(keys) = current_keys {
+                                "{keys.to_label()}"
+                            } else {
+                                "Not assigned"
                             }
                         }
 
                         td {
-                            Button {
-                                onclick: move |_| {
-                                    shortcuts.write().remove(index);
-                                },
-                                "Delete"
+                            class: "py-3 text-right",
+                            if editing() {
+                                button {
+                                    class: "rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
+                                    onclick: move |_| editing.set(false),
+                                    "Cancel"
+                                }
+                            } else {
+                                button {
+                                    class: "rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
+                                    onclick: move |_| editing.set(true),
+                                    "Change"
+                                }
                             }
                         }
                     }
@@ -154,7 +143,7 @@ fn ShortcutsTable(mut shortcuts: Signal<Vec<ShortcutBinding>>) -> Element {
     }
 }
 
-fn capture_key(event: KeyboardEvent, mut captured: Signal<Option<ShortcutKeys>>) {
+fn shortcut_from_event(event: &KeyboardEvent) -> Option<ShortcutKeys> {
     let code = event.code();
     let code_text = code.to_string();
 
@@ -177,24 +166,13 @@ fn capture_key(event: KeyboardEvent, mut captured: Signal<Option<ShortcutKeys>>)
             }
         }
     }
-    if recognized {
-        let modifiers =
-            event.modifiers() & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
-        captured.set(Some(ShortcutKeys { code, modifiers }));
-    }
-}
 
-fn add_shortcut(
-    mut shortcuts: Signal<Vec<ShortcutBinding>>,
-    mut captured: Signal<Option<ShortcutKeys>>,
-) {
-    if let Some(keys) = captured()
-        && !shortcuts.read().iter().any(|binding| binding.keys == keys)
-    {
-        shortcuts.write().push(ShortcutBinding {
-            keys,
-            action: ShortcutAction::ToggleScript,
-        });
-        captured.set(None);
+    if !recognized {
+        return None;
     }
+
+    let modifiers =
+        event.modifiers() & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
+
+    Some(ShortcutKeys { code, modifiers })
 }
