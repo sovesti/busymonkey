@@ -35,3 +35,29 @@ chrome.action.onClicked.addListener((tab) => {
 
   chrome.action.setBadgeText({ text: "ON" });
 });
+
+let socket = null;
+let retry = null;
+
+function connect() {
+  if (socket) return;
+  clearTimeout(retry);
+
+  const connection = new WebSocket("ws://127.0.0.1:17845/ws");
+  socket = connection;
+
+  connection.onmessage = event => console.log(event.data)
+  connection.onerror = () => connection.close();
+  connection.onclose = () => {
+    socket = null;
+    retry = setTimeout(connect, 3000);
+  };
+}
+
+chrome.alarms.create("reconnect", { periodInMinutes: 1 });
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === "reconnect") connect();
+});
+chrome.runtime.onStartup.addListener(connect);
+
+connect();

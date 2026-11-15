@@ -1,3 +1,4 @@
+pub(crate) mod browser;
 pub(crate) mod settings;
 mod tray;
 
@@ -12,6 +13,12 @@ pub fn launch() {
 #[component]
 fn AppInTray() -> Element {
     try_init();
+    use_future(|| async {
+        match browser::serve().await {
+            Err(err) => error!("error initialising server for communication with extension: {err:?}"),
+            Ok(()) => {}
+        }
+    });
     app()
 }
 
