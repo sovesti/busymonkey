@@ -62,7 +62,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
 
             h2 {
                 class: "text-xl font-normal mb-6",
-                "Настройки горячих клавиш"
+                "Keyboard Shortcuts"
             }
 
             table {
