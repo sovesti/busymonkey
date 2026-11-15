@@ -1,8 +1,11 @@
+#[cfg(target_os = "windows")]
 use anyhow::bail;
 
+#[cfg(target_os = "windows")]
 use crate::monkey::model;
 
 #[cfg(feature = "desktop")]
+#[cfg(target_os = "windows")]
 pub fn rdev_to_monkey(code: rdev::Key) -> anyhow::Result<model::Key> {
     Ok(match code {
         rdev::Key::Alt => model::Key::LMenu,
@@ -112,4 +115,121 @@ pub fn rdev_to_monkey(code: rdev::Key) -> anyhow::Result<model::Key> {
         rdev::Key::Unknown(k) if let Some(code) = char::from_u32(k) => model::Key::Unicode(code),
         _ => bail!("unknown code: {code:?}"),
     })
+}
+
+#[cfg(feature = "desktop")]
+#[cfg(target_os = "linux")]
+pub fn rdev_to_raw(key: rdev::Key) -> anyhow::Result<u16> {
+    use anyhow::bail;
+
+    let code = match key {
+        rdev::Key::Alt => 64,
+        rdev::Key::AltGr => 108,
+        rdev::Key::Backspace => 22,
+        rdev::Key::CapsLock => 66,
+        rdev::Key::ControlLeft => 37,
+        rdev::Key::ControlRight => 105,
+        rdev::Key::Delete => 119,
+        rdev::Key::DownArrow => 116,
+        rdev::Key::End => 115,
+        rdev::Key::Escape => 9,
+        rdev::Key::F1 => 67,
+        rdev::Key::F10 => 76,
+        rdev::Key::F11 => 95,
+        rdev::Key::F12 => 96,
+        rdev::Key::F2 => 68,
+        rdev::Key::F3 => 69,
+        rdev::Key::F4 => 70,
+        rdev::Key::F5 => 71,
+        rdev::Key::F6 => 72,
+        rdev::Key::F7 => 73,
+        rdev::Key::F8 => 74,
+        rdev::Key::F9 => 75,
+        rdev::Key::Home => 110,
+        rdev::Key::LeftArrow => 113,
+        rdev::Key::MetaLeft => 133,
+        rdev::Key::MetaRight => 134,
+        rdev::Key::PageDown => 117,
+        rdev::Key::PageUp => 112,
+        rdev::Key::Return => 36,
+        rdev::Key::RightArrow => 114,
+        rdev::Key::ShiftLeft => 50,
+        rdev::Key::ShiftRight => 62,
+        rdev::Key::Space => 65,
+        rdev::Key::Tab => 23,
+        rdev::Key::UpArrow => 111,
+        rdev::Key::PrintScreen => 107,
+        rdev::Key::ScrollLock => 78,
+        rdev::Key::Pause => 127,
+        rdev::Key::NumLock => 77,
+        rdev::Key::BackQuote => 49,
+        rdev::Key::Num1 => 10,
+        rdev::Key::Num2 => 11,
+        rdev::Key::Num3 => 12,
+        rdev::Key::Num4 => 13,
+        rdev::Key::Num5 => 14,
+        rdev::Key::Num6 => 15,
+        rdev::Key::Num7 => 16,
+        rdev::Key::Num8 => 17,
+        rdev::Key::Num9 => 18,
+        rdev::Key::Num0 => 19,
+        rdev::Key::Minus => 20,
+        rdev::Key::Equal => 21,
+        rdev::Key::KeyQ => 24,
+        rdev::Key::KeyW => 25,
+        rdev::Key::KeyE => 26,
+        rdev::Key::KeyR => 27,
+        rdev::Key::KeyT => 28,
+        rdev::Key::KeyY => 29,
+        rdev::Key::KeyU => 30,
+        rdev::Key::KeyI => 31,
+        rdev::Key::KeyO => 32,
+        rdev::Key::KeyP => 33,
+        rdev::Key::LeftBracket => 34,
+        rdev::Key::RightBracket => 35,
+        rdev::Key::KeyA => 38,
+        rdev::Key::KeyS => 39,
+        rdev::Key::KeyD => 40,
+        rdev::Key::KeyF => 41,
+        rdev::Key::KeyG => 42,
+        rdev::Key::KeyH => 43,
+        rdev::Key::KeyJ => 44,
+        rdev::Key::KeyK => 45,
+        rdev::Key::KeyL => 46,
+        rdev::Key::SemiColon => 47,
+        rdev::Key::Quote => 48,
+        rdev::Key::BackSlash => 51,
+        rdev::Key::IntlBackslash => 94,
+        rdev::Key::KeyZ => 52,
+        rdev::Key::KeyX => 53,
+        rdev::Key::KeyC => 54,
+        rdev::Key::KeyV => 55,
+        rdev::Key::KeyB => 56,
+        rdev::Key::KeyN => 57,
+        rdev::Key::KeyM => 58,
+        rdev::Key::Comma => 59,
+        rdev::Key::Dot => 60,
+        rdev::Key::Slash => 61,
+        rdev::Key::Insert => 118,
+        rdev::Key::KpMinus => 82,
+        rdev::Key::KpPlus => 86,
+        rdev::Key::KpMultiply => 63,
+        rdev::Key::KpDivide => 106,
+        rdev::Key::Kp0 => 90,
+        rdev::Key::Kp1 => 87,
+        rdev::Key::Kp2 => 88,
+        rdev::Key::Kp3 => 89,
+        rdev::Key::Kp4 => 83,
+        rdev::Key::Kp5 => 84,
+        rdev::Key::Kp6 => 85,
+        rdev::Key::Kp7 => 79,
+        rdev::Key::Kp8 => 80,
+        rdev::Key::Kp9 => 81,
+        rdev::Key::KpDelete => 91,
+        rdev::Key::KpReturn => 104,
+
+        _ => bail!("Raw mapping not implemented for {key:?}"),
+    };
+
+    Ok(code)
 }

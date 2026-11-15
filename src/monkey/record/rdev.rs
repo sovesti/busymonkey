@@ -11,8 +11,13 @@ use rdev::EventType;
 use tokio_stream::StreamExt;
 use tokio_stream::wrappers::BroadcastStream;
 
-use crate::monkey::model::{Button, Key, TimedToken, Token};
+#[cfg(target_os = "windows")]
+use crate::monkey::model::Key;
+use crate::monkey::model::{Button, TimedToken, Token};
+#[cfg(target_os = "windows")]
 use crate::monkey::record::keycodes::rdev_to_monkey;
+#[cfg(target_os = "linux")]
+use crate::monkey::record::keycodes::rdev_to_raw;
 use crate::monkey::record::{DynInputChannel, InputChannel};
 
 use super::DynTokenStream;
@@ -107,15 +112,25 @@ impl TryFrom<RdevEvent> for Vec<TimedToken> {
 }
 
 fn key_token(key: rdev::Key, direction: Direction) -> anyhow::Result<Token> {
-    Ok(Token::Key(RdevKey(key).try_into()?, direction))
+    #[cfg(target_os = "linux")]
+    {
+        Ok(Token::Raw(rdev_to_raw(key)?, direction))
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        Ok(Token::Key(RdevKey(key).try_into()?, direction))
+    }
 }
 
 fn button_token(key: rdev::Button, direction: Direction) -> anyhow::Result<Token> {
     Ok(Token::Button(RdevButton(key).try_into()?, direction))
 }
 
+#[cfg(target_os = "windows")]
 struct RdevKey(rdev::Key);
 
+#[cfg(target_os = "windows")]
 impl TryFrom<RdevKey> for Key {
     type Error = anyhow::Error;
 
@@ -143,16 +158,27 @@ impl TryFrom<RdevButton> for Button {
 
 #[cfg(test)]
 mod test {
+    #[cfg(target_os = "windows")]
     use std::time::{Duration, UNIX_EPOCH};
 
-    use crate::monkey::model::{self, Button, Direction, TimedToken, Token};
-    use crate::monkey::record::rdev::{RdevEvent, RdevKey};
+    use crate::monkey::model::{Direction, Token};
 
+    #[cfg(target_os = "windows")]
+    use crate::monkey::model::{self, Button, TimedToken};
+
+    #[cfg(target_os = "windows")]
+    use crate::monkey::record::rdev::RdevEvent;
+
+    #[cfg(target_os = "windows")]
+    use crate::monkey::record::rdev::RdevKey;
+
+    #[cfg(target_os = "windows")]
     #[test]
     fn key_converts() {
         assert_eq!(model::Key::A, RdevKey(rdev::Key::KeyA).try_into().unwrap());
     }
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn token_converts() {
         let actual: Vec<TimedToken> = RdevEvent(rdev::Event {
@@ -169,5 +195,42 @@ mod test {
             )],
             actual
         );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn raw_key_converts() {
+        use crate::monkey::record::rdev::key_token;
+
+        assert!(matches!(
+            key_token(rdev::Key::KeyA, Direction::Press).unwrap(),
+            Token::Raw(38, Direction::Press)
+        ));
+
+        assert!(matches!(
+            key_token(rdev::Key::KeyA, Direction::Release).unwrap(),
+            Token::Raw(38, Direction::Release)
+        ));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn raw_keys_convert() {
+        use crate::monkey::record::keycodes::rdev_to_raw;
+
+        let cases = [
+            (rdev::Key::KeyA, 38),
+            (rdev::Key::KeyB, 56),
+            (rdev::Key::KeyC, 54),
+            (rdev::Key::ShiftLeft, 50),
+            (rdev::Key::ControlLeft, 37),
+            (rdev::Key::Return, 36),
+            (rdev::Key::Space, 65),
+            (rdev::Key::Escape, 9),
+        ];
+
+        for (key, expected) in cases {
+            assert_eq!(rdev_to_raw(key).unwrap(), expected);
+        }
     }
 }
