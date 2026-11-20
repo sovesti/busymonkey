@@ -3,7 +3,8 @@
   "name": "Переключение вкладок",
   "version": "1.0.0",
   "description": "Переключает вкладки",
-  "minimum_chrome_version": "110",
+  "minimum_chrome_version": "116",
+  "permissions": ["alarms"],
   "action": {
     "default_title": "Включить / выключить переключение вкладок"
   },
