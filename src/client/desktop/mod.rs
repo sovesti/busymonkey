@@ -5,6 +5,7 @@ mod tray;
 use dioxus::prelude::*;
 
 use crate::client::app;
+use browser::use_browser;
 
 pub fn launch() {
     tray::launch(AppInTray);
@@ -13,12 +14,7 @@ pub fn launch() {
 #[component]
 fn AppInTray() -> Element {
     try_init();
-    use_future(|| async {
-        match browser::serve().await {
-            Err(err) => error!("error initialising server for communication with extension: {err:?}"),
-            Ok(()) => {}
-        }
-    });
+    use_browser();
     app()
 }
 
