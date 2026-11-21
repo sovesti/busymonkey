@@ -36,8 +36,6 @@ impl Display for TimedToken {
         match self.token() {
             Token::Key(key, Direction::Press) => write!(f, "Press {}", key_name(key)),
             Token::Key(key, _) => write!(f, "Release {}", key_name(key)),
-            Token::Raw(code, Direction::Press) => write!(f, "Press raw key {code}"),
-            Token::Raw(code, Direction::Release) => write!(f, "Release raw key {code}"),
             Token::Button(button, Direction::Press) => write!(f, "Press {button:?} mouse button"),
             Token::Button(button, _) => write!(f, "Release {button:?} mouse button"),
             Token::MoveMouse(x, y, _) => write!(f, "Move mouse to ({x}, {y})"),
