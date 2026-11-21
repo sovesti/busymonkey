@@ -34,8 +34,8 @@ impl TimedToken {
 impl Display for TimedToken {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.token() {
-            Token::Key(key, Direction::Press) => write!(f, "Press {key:?}"),
-            Token::Key(key, _) => write!(f, "Release {key:?}"),
+            Token::Key(key, Direction::Press) => write!(f, "Press {}", key_name(key)),
+            Token::Key(key, _) => write!(f, "Release {}", key_name(key)),
             Token::Raw(code, Direction::Press) => write!(f, "Press raw key {code}"),
             Token::Raw(code, Direction::Release) => write!(f, "Release raw key {code}"),
             Token::Button(button, Direction::Press) => write!(f, "Press {button:?} mouse button"),
@@ -45,6 +45,31 @@ impl Display for TimedToken {
             _ => write!(f, ""),
         }
     }
+}
+
+#[cfg(target_os = "linux")]
+fn key_name(key: &Key) -> String {
+    match key {
+        Key::Unicode(ch) => ch.to_uppercase().collect(),
+        Key::LControl => "Left Ctrl".into(),
+        Key::RControl => "Right Ctrl".into(),
+        Key::LShift => "Left Shift".into(),
+        Key::RShift => "Right Shift".into(),
+        Key::LMenu => "Left Alt".into(),
+        Key::ModeChange => "AltGr".into(),
+        Key::Meta => "Super".into(),
+        Key::Return => "Enter".into(),
+        Key::LeftArrow => "Left Arrow".into(),
+        Key::RightArrow => "Right Arrow".into(),
+        Key::UpArrow => "Up Arrow".into(),
+        Key::DownArrow => "Down Arrow".into(),
+        _ => format!("{key:?}"),
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn key_name(key: &Key) -> String {
+    format!("{key:?}")
 }
 
 fn format_scroll(f: &mut fmt::Formatter<'_>, x: &i32, axis: &Axis) -> fmt::Result {
