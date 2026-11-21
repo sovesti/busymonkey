@@ -1,62 +1,20 @@
-use std::collections::HashMap;
+pub(crate) mod registry;
 
 use dioxus::prelude::*;
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
-enum ShortcutAction {
-    ToggleScript,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-struct ShortcutKeys {
-    code: Code,
-    modifiers: Modifiers,
-}
-
-impl ShortcutKeys {
-    fn as_label(&self) -> String {
-        let mut label = String::new();
-
-        if self.modifiers.contains(Modifiers::CONTROL) {
-            label.push_str("Ctrl + ");
-        }
-        if self.modifiers.contains(Modifiers::SHIFT) {
-            label.push_str("Shift + ");
-        }
-        if self.modifiers.contains(Modifiers::ALT) {
-            label.push_str("Alt + ");
-        }
-
-        let code = self.code.to_string();
-        let key = code
-            .strip_prefix("Key")
-            .or(code.strip_prefix("Digit"))
-            .unwrap_or(code.as_str());
-
-        label.push_str(key);
-        label
-    }
-}
+use registry::{ShortcutAction, ShortcutKeys, ShortcutsRegistry, ShortcutsRegistryStoreExt};
 
 #[component]
 pub(crate) fn ShortuctSettingsView() -> Element {
-    let mut shortcuts = use_signal(|| {
-        HashMap::from([(
-            ShortcutAction::ToggleScript,
-            ShortcutKeys {
-                code: Code::Space,
-                modifiers: Modifiers::empty(),
-            },
-        )])
-    });
+    let shortcuts = use_store(ShortcutsRegistry::new);
     let mut editing = use_signal(|| false);
 
-    let current_keys = shortcuts.read().get(&ShortcutAction::ToggleScript).copied();
+    let current_keys = shortcuts.known().get(ShortcutAction::ToggleScript);
 
     rsx! {
         div { class: "w-full max-w-5xl text-text",
 
-            h2 { class: "text-xl font-normal mb-6", "Keyboard Shortcuts" }
+            h2 { class: "text-xl font-normal mb-6", "Настройки горячих клавиш" }
 
             table { class: "w-full table-fixed border-collapse",
 
@@ -73,7 +31,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                 }
 
                 tbody {
-                    tr { class: "h-[72px] border-t border-surface1",
+                    tr { class: "border-t border-surface1",
 
                         td { class: "py-3 pr-3", "Start/Stop script" }
 
@@ -90,13 +48,13 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                                     onkeydown: move |event| {
                                         if let Some(keys) = shortcut_from_event(&event) {
                                             event.prevent_default();
-                                            shortcuts.write().insert(ShortcutAction::ToggleScript, keys);
+                                            shortcuts.known().insert(ShortcutAction::ToggleScript, keys);
                                             editing.set(false);
                                         }
                                     },
                                 }
                             } else if let Some(keys) = current_keys {
-                                "{keys.as_label()}"
+                                "{keys}"
                             } else {
                                 "Not assigned"
                             }
@@ -105,13 +63,13 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                         td { class: "py-3 text-right",
                             if editing() {
                                 button {
-                                    class: "w-24 rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
+                                    class: "rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
                                     onclick: move |_| editing.set(false),
                                     "Cancel"
                                 }
                             } else {
                                 button {
-                                    class: "w-24 rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
+                                    class: "rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
                                     onclick: move |_| editing.set(true),
                                     "Change"
                                 }
@@ -134,17 +92,18 @@ fn shortcut_from_event(event: &KeyboardEvent) -> Option<ShortcutKeys> {
 
     let mut recognized = false;
 
-    if let Some(symbol) = symbol
-        && symbol.len() == 1
-    {
-        recognized = true;
+    if let Some(symbol) = symbol {
+        if symbol.len() == 1 {
+            recognized = true;
+        }
     } else if code_text == "Enter" || code_text == "Space" || code_text == "Escape" {
         recognized = true;
-    } else if let Some(number) = code_text.strip_prefix("F")
-        && let Ok(n) = number.parse::<u8>()
-        && (1..=12).contains(&n)
-    {
-        recognized = true;
+    } else if let Some(number) = code_text.strip_prefix("F") {
+        if let Ok(n) = number.parse::<u8>() {
+            if (1..=12).contains(&n) {
+                recognized = true;
+            }
+        }
     }
 
     if !recognized {
@@ -153,5 +112,5 @@ fn shortcut_from_event(event: &KeyboardEvent) -> Option<ShortcutKeys> {
 
     let modifiers = event.modifiers() & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
 
-    Some(ShortcutKeys { code, modifiers })
+    Some(ShortcutKeys::new(code, modifiers))
 }

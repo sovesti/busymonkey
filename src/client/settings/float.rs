@@ -7,6 +7,7 @@ use crate::monkey::model::parameters::FloatSchema;
 pub fn Control(
     name: String,
     title: String,
+    unit: String,
     initial: serde_json::Value,
     schema: FloatSchema,
 ) -> Element {
@@ -16,7 +17,7 @@ pub fn Control(
             .and_then(|val| val.parse().ok())
             .unwrap_or_default()
     });
-    let label = use_memo(move || format!("{title}: {:.2}", value()));
+    let label = use_memo(move || format!("{:.2} {unit}", value()));
     rsx! {
         input {
             class: "hidden",
@@ -26,7 +27,10 @@ pub fn Control(
             step: "any",
             value,
         }
-        label { r#for: name, "{label}" }
+        div { class: "flex flex-row justify-between",
+            label { r#for: name, {title} }
+            {label}
+        }
         Slider {
             horizontal: true,
             min: schema.from,

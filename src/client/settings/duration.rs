@@ -18,7 +18,7 @@ pub fn Control(
             .and_then(|val| val.parse().ok())
             .unwrap_or_default()
     });
-    let label = use_memo(move || format!("{title}: {}", format_time(from_millis(value()))));
+    let label = use_memo(move || format_time(from_millis(value())));
     rsx! {
         input {
             class: "hidden",
@@ -27,7 +27,10 @@ pub fn Control(
             name: name.clone(),
             value,
         }
-        label { r#for: name, "{label}" }
+        div { class: "flex flex-row justify-between",
+            label { r#for: name, {title} }
+            {label}
+        }
         Slider {
             horizontal: true,
             min: into_millis(schema.from),

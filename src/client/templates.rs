@@ -1,21 +1,26 @@
 use dioxus::prelude::*;
 use dioxus_icons::lucide::{Keyboard, Mouse, MousePointer2, MousePointerClick};
 
-use crate::client::components::Button;
+use crate::client::components::{Button, ButtonVariant};
 use crate::monkey::model::{TimedToken, Token};
+use crate::monkey::record::record_to;
 use crate::monkey::record::storage::linear::{Linear, LinearStoreExt};
 use crate::monkey::record::storage::stoppable::{Stoppable, StoppableStoreExt};
 use crate::monkey::record::storage::truncate::{TruncateMoves, TruncateMovesStoreExt};
-use crate::monkey::record::use_recording;
 
 #[component]
 pub fn TemplatesView() -> Element {
     let mut running = use_signal(|| true);
     let storage = use_storage(running.into());
-    use_recording(storage);
+    record_to(storage);
     rsx! {
         div { class: "flex flex-col min-h-0 items-center m-1",
-            Button { disabled: !running(), onclick: move |_| running.set(false), "Stop" }
+            Button {
+                variant: ButtonVariant::Solid,
+                disabled: !running(),
+                onclick: move |_| running.set(false),
+                "Stop"
+            }
             TokensTable { store: storage.delegate().delegate().all() }
         }
     }
@@ -29,13 +34,13 @@ fn TokensTable(store: Store<Vec<TimedToken>>) -> Element {
                 thead { class: "w-full",
                     tr { class: "w-full",
                         th { class: "w-1/8", "" }
-                        th { class: "w-1/2", "Action" }
-                        th { "Time" }
+                        th { class: "w-1/2 p-1 text-overlay0 text-md text-left", "Action" }
+                        th { class: "p-1 text-overlay0 text-md text-left", "Time" }
                     }
                 }
                 tbody {
                     for token in store.iter() {
-                        tr {
+                        tr { class: "border-t-1 border-crust",
                             TokenRow { token }
                         }
                     }
@@ -48,11 +53,11 @@ fn TokensTable(store: Store<Vec<TimedToken>>) -> Element {
 #[component]
 fn TokenRow(token: ReadSignal<TimedToken>) -> Element {
     rsx! {
-        td { class: "m-1 p-1",
+        td { class: "m-1 p-1 text-overlay0",
             TokenIcon { token }
         }
         td { class: "m-1 p-1", "{token}" }
-        td { class: "m-1 p-1 text-center", {token.read().format_time()} }
+        td { class: "m-1 p-1 text-left", {token.read().format_time()} }
     }
 }
 

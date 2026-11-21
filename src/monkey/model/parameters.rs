@@ -1,12 +1,13 @@
 use std::time::Duration;
 
-use crate::monkey::script::DynScript;
+use crate::monkey::script::MonkeyScript;
 
 inventory::collect!(ScriptFactory);
 
 #[derive(Clone, PartialEq)]
 pub struct ScriptParametersSchema {
     key: &'static str,
+    meta: ScriptMeta,
     defined: Vec<Parameter>,
 }
 
@@ -14,10 +15,17 @@ impl ScriptParametersSchema {
     pub fn iter(&self) -> impl Iterator<Item = Parameter> {
         self.defined.clone().into_iter()
     }
+
+    pub fn label(&self) -> String {
+        self.meta.label.to_owned()
+    }
 }
+
+pub type DynScript = Box<dyn MonkeyScript>;
 
 pub struct ScriptFactory {
     key: &'static str,
+    meta: fn() -> ScriptMeta,
     parameters: fn() -> Vec<Parameter>,
     create: fn(serde_json::Value) -> anyhow::Result<DynScript>,
 }
@@ -28,8 +36,18 @@ impl ScriptFactory {
         parameters: fn() -> Vec<Parameter>,
         create: fn(serde_json::Value) -> anyhow::Result<DynScript>,
     ) -> Self {
+        Self::new_meta(key, ScriptMeta::default, parameters, create)
+    }
+
+    pub const fn new_meta(
+        key: &'static str,
+        meta: fn() -> ScriptMeta,
+        parameters: fn() -> Vec<Parameter>,
+        create: fn(serde_json::Value) -> anyhow::Result<DynScript>,
+    ) -> Self {
         Self {
             key,
+            meta,
             parameters,
             create,
         }
@@ -42,6 +60,7 @@ impl ScriptFactory {
     pub fn create(&self) -> ScriptParametersSchema {
         ScriptParametersSchema {
             key: self.key,
+            meta: (self.meta)(),
             defined: (self.parameters)(),
         }
     }
@@ -51,18 +70,42 @@ impl ScriptFactory {
     }
 }
 
+#[derive(Clone, Default, PartialEq)]
+pub struct ScriptMeta {
+    pub label: String,
+}
+
+impl ScriptMeta {
+    pub fn new(label: impl ToString) -> Self {
+        Self {
+            label: label.to_string(),
+        }
+    }
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Parameter {
     pub name: String,
     pub label: String,
+    pub unit: String,
     pub schema: ParameterSchema,
 }
 
 impl Parameter {
     pub fn new(name: impl ToString, label: impl ToString, schema: ParameterSchema) -> Self {
+        Self::new_unit(name, label, "", schema)
+    }
+
+    pub fn new_unit(
+        name: impl ToString,
+        label: impl ToString,
+        unit: impl ToString,
+        schema: ParameterSchema,
+    ) -> Self {
         Self {
             name: name.to_string(),
             label: label.to_string(),
+            unit: unit.to_string(),
             schema,
         }
     }

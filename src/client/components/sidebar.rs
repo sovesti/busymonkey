@@ -1,9 +1,6 @@
 use crate::client::components::ButtonSize;
 
 use super::button::{Button, ButtonVariant};
-use super::sheet::{
-    Sheet, SheetContentClose, SheetDescription, SheetHeader, SheetSide, SheetTitle,
-};
 use dioxus::core::use_drop;
 use dioxus::prelude::*;
 use dioxus_icons::lucide::{ChevronLeft, ChevronRight};
@@ -15,11 +12,9 @@ use dioxus_primitives::use_controlled;
 struct Styles;
 
 // constants
-const SIDEBAR_WIDTH: &str = "8rem";
-const SIDEBAR_WIDTH_MOBILE: &str = "10rem";
+const SIDEBAR_WIDTH: &str = "10rem";
 const SIDEBAR_WIDTH_ICON: &str = "2.5rem";
 const SIDEBAR_KEYBOARD_SHORTCUT: &str = "b";
-const MOBILE_BREAKPOINT: u32 = 768;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum SidebarState {
@@ -84,7 +79,6 @@ impl SidebarCollapsible {
 pub struct SidebarCtx {
     pub state: Memo<SidebarState>,
     pub side: Signal<SidebarSide>,
-    pub is_mobile: Signal<bool>,
     // From use_controlled:
     open: Memo<bool>,
     set_open: Callback<bool>,
@@ -95,19 +89,7 @@ pub struct SidebarCtx {
 impl SidebarCtx {
     /// Toggle the sidebar open/closed state
     pub fn toggle(&self) {
-        if (self.is_mobile)() {
-            let current = (self.open_mobile)();
-            let mut open_mobile = self.open_mobile;
-            open_mobile.set(!current);
-        } else {
-            self.set_open.call(!self.open());
-        }
-    }
-
-    /// Set the mobile sidebar open state
-    pub fn set_open_mobile(&self, value: bool) {
-        let mut open_mobile = self.open_mobile;
-        open_mobile.set(value);
+        self.set_open.call(!self.open());
     }
 
     /// Get the current open state (desktop)
@@ -120,44 +102,6 @@ pub fn use_sidebar() -> SidebarCtx {
     use_context::<SidebarCtx>()
 }
 
-pub fn use_is_mobile() -> Signal<bool> {
-    let mut is_mobile = use_signal(|| false);
-
-    use_effect(move || {
-        spawn(async move {
-            let js_code = format!(
-                r#"
-                function checkMobile() {{
-                    return window.innerWidth < {MOBILE_BREAKPOINT};
-                }}
-                function handleResize() {{
-                    dioxus.send(checkMobile());
-                }}
-                window.__sidebarResizeHandler = handleResize;
-                window.addEventListener('resize', window.__sidebarResizeHandler);
-                dioxus.send(checkMobile());
-                "#
-            );
-            let mut eval = document::eval(&js_code);
-
-            while let Ok(result) = eval.recv::<bool>().await {
-                is_mobile.set(result);
-            }
-        });
-    });
-
-    use_drop(|| {
-        _ = document::eval(
-            r#"
-            window.removeEventListener('resize', window.__sidebarResizeHandler);
-            delete window.__sidebarResizeHandler;
-            "#,
-        );
-    });
-
-    is_mobile
-}
-
 #[component]
 pub fn SidebarProvider(
     #[props(default = true)] default_open: bool,
@@ -166,7 +110,6 @@ pub fn SidebarProvider(
     #[props(extends = GlobalAttributes)] attributes: Vec<Attribute>,
     children: Element,
 ) -> Element {
-    let is_mobile = use_is_mobile();
     let side = use_signal(|| SidebarSide::Left);
     let open_mobile = use_signal(|| false);
 
@@ -183,7 +126,6 @@ pub fn SidebarProvider(
     let ctx = SidebarCtx {
         state,
         side,
-        is_mobile,
         open,
         set_open,
         open_mobile,
@@ -225,7 +167,7 @@ pub fn SidebarProvider(
     });
 
     let sidebar_style = format!(
-        r#"--dx-sidebar-width: {SIDEBAR_WIDTH}; --dx-sidebar-width-mobile: {SIDEBAR_WIDTH_MOBILE}; --dx-sidebar-width-icon: {SIDEBAR_WIDTH_ICON}"#
+        r#"--dx-sidebar-width: {SIDEBAR_WIDTH}; --dx-sidebar-width-icon: {SIDEBAR_WIDTH_ICON}"#
     );
 
     let base = attributes!(div {
@@ -255,33 +197,7 @@ pub fn Sidebar(
         ctx_side.set(side);
     }
 
-    let is_mobile = ctx.is_mobile;
     let state = ctx.state;
-    let open_mobile = ctx.open_mobile;
-
-    if is_mobile() {
-        let sheet_side = match side {
-            SidebarSide::Left => SheetSide::Left,
-        };
-
-        return rsx! {
-            Sheet {
-                open: open_mobile(),
-                on_open_change: move |v| ctx.set_open_mobile(v),
-                "data-side": sheet_side.as_str(),
-                class: Styles::dx_sidebar_sheet.to_string(),
-                "data-sidebar": "sidebar",
-                "data-slot": "sidebar",
-                "data-mobile": "true",
-                SheetContentClose { class: Styles::dx_sidebar_sheet_close }
-                SheetHeader { class: Styles::dx_sr_only,
-                    SheetTitle { "Sidebar" }
-                    SheetDescription { "Displays the mobile sidebar." }
-                }
-                div { class: Styles::dx_sidebar_mobile_inner, {children} }
-            }
-        };
-    }
 
     let collapsible_str = if state() == SidebarState::Collapsed {
         collapsible.as_str()
@@ -381,6 +297,7 @@ pub fn SidebarInset(
 ) -> Element {
     let base = attributes!(main {
         class: Styles::dx_sidebar_inset,
+        class: "p-4 items-center",
         "data-slot": "sidebar-inset",
     });
     let merged = merge_attributes(vec![base, attributes]);
