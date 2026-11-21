@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 use dioxus_icons::lucide::{BookDashed, CircleUser, Cog, ScrollText};
 
 use crate::client::components::{
-    Button, ButtonAlignment, ButtonSize, ButtonVariant, SidebarContent, use_sidebar,
+    Button, ButtonAlignment, ButtonSize, ButtonVariant, SidebarContent, ToastProvider, use_sidebar,
 };
 use crate::client::templates::TemplatesView;
 
@@ -17,14 +17,21 @@ use super::settings::SettingsView;
 pub fn ViewsInSidebar() -> Element {
     let current = use_signal(|| View::Scripts);
     rsx! {
-        SidebarProvider {
-            default_open: false,
+        SidebarProvider { default_open: false,
             Sidebar {
-                SidebarHeader { SidebarTrigger { class: "self-end" } },
-                SidebarContent { for view in views() { ViewButton { view, current } } }
-            },
+                SidebarHeader {
+                    SidebarTrigger { class: "self-end" }
+                }
+                SidebarContent {
+                    for view in views() {
+                        ViewButton { view, current }
+                    }
+                }
+            }
             SidebarInset {
-                CurrentView { current }
+                ToastProvider {
+                    CurrentView { current }
+                }
             }
         }
     }
@@ -39,8 +46,10 @@ fn ViewButton(view: View, mut current: Signal<View>) -> Element {
             alignment: ButtonAlignment::Left,
             size: if ctx.open() { ButtonSize::Default } else { ButtonSize::Icon },
             onclick: move |_| current.set(view),
-            Icon { view },
-            if ctx.open() { span { "{view}" } }
+            Icon { view }
+            if ctx.open() {
+                span { "{view}" }
+            }
         }
     }
 }
@@ -48,10 +57,18 @@ fn ViewButton(view: View, mut current: Signal<View>) -> Element {
 #[component]
 fn CurrentView(current: Signal<View>) -> Element {
     match current() {
-        View::Account => rsx! { AuthView {} },
-        View::Scripts => rsx! { ScriptsView {} },
-        View::Settings => rsx! { SettingsView {} },
-        View::Templates => rsx! { TemplatesView {} },
+        View::Account => rsx! {
+            AuthView {}
+        },
+        View::Scripts => rsx! {
+            ScriptsView {}
+        },
+        View::Settings => rsx! {
+            SettingsView {}
+        },
+        View::Templates => rsx! {
+            TemplatesView {}
+        },
     }
 }
 
@@ -90,9 +107,17 @@ impl Display for View {
 #[component]
 fn Icon(view: View) -> Element {
     match view {
-        View::Account => rsx! { CircleUser {} },
-        View::Scripts => rsx! { ScrollText {} },
-        View::Settings => rsx! { Cog {} },
-        View::Templates => rsx! { BookDashed {} },
+        View::Account => rsx! {
+            CircleUser {}
+        },
+        View::Scripts => rsx! {
+            ScrollText {}
+        },
+        View::Settings => rsx! {
+            Cog {}
+        },
+        View::Templates => rsx! {
+            BookDashed {}
+        },
     }
 }

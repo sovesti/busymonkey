@@ -10,6 +10,7 @@ struct Styles;
 pub enum ButtonVariant {
     #[default]
     Primary,
+    Solid,
     Ghost,
 }
 
@@ -17,6 +18,9 @@ impl ButtonVariant {
     pub fn class(&self) -> &'static str {
         match self {
             ButtonVariant::Primary => "bg-surface0 text-text enabled:hover:bg-surface1",
+            ButtonVariant::Solid => {
+                "bg-peach2 text-base enabled:hover:bg-peach1 enabled:hover:text-mantle"
+            }
             ButtonVariant::Ghost => "bg-mantle text-text enabled:hover:bg-crust",
         }
     }

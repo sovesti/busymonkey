@@ -9,7 +9,7 @@ use crate::monkey::{
     engine::{self, Agent},
     model::{
         Coordinate, Token,
-        parameters::{DynScript, Parameter, ParameterSchema, ScriptFactory},
+        parameters::{DynScript, Parameter, ParameterSchema, ScriptFactory, ScriptMeta},
     },
     script::MonkeyScript,
 };
@@ -125,18 +125,21 @@ impl Default for DummyParameters {
 }
 
 inventory::submit! {
-    ScriptFactory::new("dummy", || {
-        vec![
-            Parameter::new(
-                "speed",
-                "Movement speed, px/s",
-                ParameterSchema::float(0.0, 100.0),
-            ),
-            Parameter::new(
-                "interval",
-                "Interval between circles",
-                ParameterSchema::duration(Duration::ZERO, Duration::from_secs(10)),
-            ),
-        ]
-    }, DummyScript::new)
+    ScriptFactory::new_meta("dummy",
+        || { ScriptMeta::new("Dummy mouse moving") },
+        || {
+            vec![
+                Parameter::new_unit(
+                    "speed",
+                    "Movement speed",
+                    "px/s",
+                    ParameterSchema::float(0.0, 100.0),
+                ),
+                Parameter::new(
+                    "interval",
+                    "Interval between circles",
+                    ParameterSchema::duration(Duration::ZERO, Duration::from_secs(10)),
+                ),
+            ] },
+        DummyScript::new)
 }
