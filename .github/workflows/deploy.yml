@@ -17,7 +17,6 @@ jobs:
       cancel-in-progress: true
     env:
       REGISTRY_ADDRESS: ${{ secrets.REGISTRY_ADDRESS }}
-      DOCKER_CONFIG: ${{ runner.temp }}/docker-registry
     steps:
       - uses: actions/checkout@v7
       - name: Read image name and version
@@ -37,6 +36,11 @@ jobs:
 
           printf 'IMAGE_NAME=%s/%s\n' "$registry" "$name" >> "$GITHUB_ENV"
           printf 'APP_VERSION=%s\n' "${version//+/-}" >> "$GITHUB_ENV"
+      - name: config docker
+        shell: bash
+        run: |
+          echo "DOCKER_CONFIG=$RUNNER_TEMP/docker-registry" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/docker-registry"
       - name: Log in to registry
         env:
           REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
