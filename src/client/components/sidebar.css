@@ -26,7 +26,7 @@
     min-height: 100svh;
 }
 
-@media (width >=768px) {
+@media (width >=0px) {
     .dx-sidebar-wrapper:has(.dx-sidebar-desktop[data-side="right"]) {
         flex-direction: row-reverse;
     }
@@ -41,7 +41,7 @@
     color: var(--dx-sidebar-foreground);
 }
 
-@media (width >=768px) {
+@media (width >=0px) {
     .dx-sidebar-desktop {
         display: block;
     }
@@ -87,7 +87,7 @@
         width 200ms ease-out;
 }
 
-@media (width >=768px) {
+@media (width >=0px) {
     .dx-sidebar-container {
         display: flex;
     }

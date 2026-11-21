@@ -1,6 +1,7 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, time::Duration};
 
 use dioxus::{core::provide_root_context, prelude::*};
+use dioxus_primitives::toast::{ToastOptions, consume_toast};
 use serde::{Serialize, de::DeserializeOwned};
 
 use crate::client;
@@ -9,15 +10,19 @@ pub fn provide_settings<T: SettingsCategory>() {
     provide_root_context(use_resource(T::load_or_default));
 }
 
-pub fn use_settings<T: SettingsCategory>() -> Resource<Signal<T>> {
-    use_context::<Resource<Signal<T>>>()
+pub fn use_settings<T: SettingsCategory>() -> Resource<Store<T>> {
+    use_context::<Resource<Store<T>>>()
 }
 
 pub fn use_save_settings<T: SettingsCategory>() -> Action<(), ()> {
-    use_action(|| async {
+    use_action(move || async {
         if let Some(ready) = &*use_settings::<T>().read() {
             ready.read().try_save().await?;
         }
+        consume_toast().info(
+            "Saved successfully".to_owned(),
+            ToastOptions::new().duration(Duration::from_secs(2)),
+        );
         Ok::<(), anyhow::Error>(())
     })
 }
@@ -25,13 +30,13 @@ pub fn use_save_settings<T: SettingsCategory>() -> Action<(), ()> {
 pub trait SettingsCategory: DeserializeOwned + Serialize + Default + Debug + 'static {
     fn name() -> String;
 
-    async fn load_or_default() -> Signal<Self> {
+    async fn load_or_default() -> Store<Self> {
         desktop! {
-            Signal::new(client::desktop::settings::load_or_default(Self::name()).await)
+            Store::new(client::desktop::settings::load_or_default(Self::name()).await)
         }
         #[cfg(not(feature = "desktop"))]
         {
-            Signal::default()
+            Store::new(Self::default())
         }
     }
 

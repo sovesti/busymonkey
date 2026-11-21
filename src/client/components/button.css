@@ -24,11 +24,11 @@
 
 .dx-button[data-size="default"] {
     height: 2.5rem;
-    padding: 0.5rem;
+    padding: 1rem;
 }
 
 .dx-button[data-size="default"]:has(> svg) {
-    padding-inline: 0.5rem;
+    padding-inline: 1rem;
 }
 
 .dx-button[data-size="icon"] {
