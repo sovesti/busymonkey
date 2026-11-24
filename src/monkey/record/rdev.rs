@@ -143,16 +143,27 @@ impl TryFrom<RdevButton> for Button {
 
 #[cfg(test)]
 mod test {
+    #[cfg(target_os = "windows")]
     use std::time::{Duration, UNIX_EPOCH};
 
-    use crate::monkey::model::{self, Button, Direction, TimedToken, Token};
-    use crate::monkey::record::rdev::{RdevEvent, RdevKey};
+    use crate::monkey::model::{Direction, Token};
 
+    #[cfg(target_os = "windows")]
+    use crate::monkey::model::{self, Button, TimedToken};
+
+    #[cfg(target_os = "windows")]
+    use crate::monkey::record::rdev::RdevEvent;
+
+    #[cfg(target_os = "windows")]
+    use crate::monkey::record::rdev::RdevKey;
+
+    #[cfg(target_os = "windows")]
     #[test]
     fn key_converts() {
         assert_eq!(model::Key::A, RdevKey(rdev::Key::KeyA).try_into().unwrap());
     }
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn token_converts() {
         let actual: Vec<TimedToken> = RdevEvent(rdev::Event {
@@ -168,6 +179,35 @@ mod test {
                 Token::Button(Button::Middle, Direction::Press),
             )],
             actual
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn digit_key_converts() {
+        use super::key_token;
+        use crate::monkey::model::{Direction, Key, Token};
+
+        assert_eq!(
+            key_token(rdev::Key::Num1, Direction::Press).unwrap(),
+            Token::Key(Key::Unicode('1'), Direction::Press)
+        );
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn unicode_key_converts() {
+        use crate::monkey::model::Key;
+        use crate::monkey::record::rdev::key_token;
+
+        assert_eq!(
+            key_token(rdev::Key::KeyA, Direction::Press).unwrap(),
+            Token::Key(Key::Unicode('a'), Direction::Press)
+        );
+
+        assert_eq!(
+            key_token(rdev::Key::KeyA, Direction::Release).unwrap(),
+            Token::Key(Key::Unicode('a'), Direction::Release)
         );
     }
 }

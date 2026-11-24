@@ -62,7 +62,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
 
             h2 {
                 class: "text-xl font-normal mb-6",
-                "Настройки горячих клавиш"
+                "Keyboard Shortcuts"
             }
 
             table {
@@ -87,7 +87,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
 
                 tbody {
                     tr {
-                        class: "border-t border-surface1",
+                        class: "h-[72px] border-t border-surface1",
 
                         td {
                             class: "py-3 pr-3",
@@ -124,13 +124,13 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                             class: "py-3 text-right",
                             if editing() {
                                 button {
-                                    class: "rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
+                                    class: "w-24 rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
                                     onclick: move |_| editing.set(false),
                                     "Cancel"
                                 }
                             } else {
                                 button {
-                                    class: "rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
+                                    class: "w-24 rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
                                     onclick: move |_| editing.set(true),
                                     "Change"
                                 }
