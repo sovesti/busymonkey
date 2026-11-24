@@ -45,7 +45,6 @@ impl Display for TimedToken {
     }
 }
 
-#[cfg(target_os = "linux")]
 fn key_name(key: &Key) -> String {
     match key {
         Key::Unicode(ch) => ch.to_uppercase().collect(),
@@ -53,7 +52,9 @@ fn key_name(key: &Key) -> String {
         Key::RControl => "Right Ctrl".into(),
         Key::LShift => "Left Shift".into(),
         Key::RShift => "Right Shift".into(),
+        #[cfg(feature = "desktop")]
         Key::LMenu => "Left Alt".into(),
+        #[cfg(feature = "desktop")]
         Key::ModeChange => "AltGr".into(),
         Key::Meta => "Super".into(),
         Key::Return => "Enter".into(),
@@ -63,11 +64,6 @@ fn key_name(key: &Key) -> String {
         Key::DownArrow => "Down Arrow".into(),
         _ => format!("{key:?}"),
     }
-}
-
-#[cfg(target_os = "windows")]
-fn key_name(key: &Key) -> String {
-    format!("{key:?}")
 }
 
 fn format_scroll(f: &mut fmt::Formatter<'_>, x: &i32, axis: &Axis) -> fmt::Result {
