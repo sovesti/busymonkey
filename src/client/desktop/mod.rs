@@ -1,9 +1,11 @@
+pub(crate) mod browser;
 pub(crate) mod settings;
 mod tray;
 
 use dioxus::prelude::*;
 
 use crate::client::app;
+use browser::use_browser;
 
 pub fn launch() {
     tray::launch(AppInTray);
@@ -12,6 +14,7 @@ pub fn launch() {
 #[component]
 fn AppInTray() -> Element {
     try_init();
+    use_browser();
     app()
 }
 
