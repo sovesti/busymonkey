@@ -1,4 +1,6 @@
+#[allow(unused)]
 mod client;
+#[allow(unused)]
 mod monkey;
 mod scripts;
 #[cfg(feature = "server")]

@@ -53,8 +53,6 @@ pub enum TabsVariant {
     /// The default variant.
     #[default]
     Default,
-    /// The ghost variant.
-    Ghost,
 }
 
 impl TabsVariant {
@@ -62,7 +60,6 @@ impl TabsVariant {
     fn to_class(self) -> &'static str {
         match self {
             TabsVariant::Default => "default",
-            TabsVariant::Ghost => "ghost",
         }
     }
 }

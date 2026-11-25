@@ -14,7 +14,7 @@ struct ShortcutKeys {
 }
 
 impl ShortcutKeys {
-    fn to_label(&self) -> String {
+    fn as_label(&self) -> String {
         let mut label = String::new();
 
         if self.modifiers.contains(Modifiers::CONTROL) {
@@ -51,10 +51,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
     });
     let mut editing = use_signal(|| false);
 
-    let current_keys = shortcuts
-        .read()
-        .get(&ShortcutAction::ToggleScript)
-        .copied();
+    let current_keys = shortcuts.read().get(&ShortcutAction::ToggleScript).copied();
 
     rsx! {
         div {
@@ -114,7 +111,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                                     }
                                 }
                             } else if let Some(keys) = current_keys {
-                                "{keys.to_label()}"
+                                "{keys.as_label()}"
                             } else {
                                 "Not assigned"
                             }
@@ -153,26 +150,24 @@ fn shortcut_from_event(event: &KeyboardEvent) -> Option<ShortcutKeys> {
 
     let mut recognized = false;
 
-    if let Some(symbol) = symbol {
-        if symbol.len() == 1 {
-            recognized = true;
-        }
+    if let Some(symbol) = symbol
+        && symbol.len() == 1
+    {
+        recognized = true;
     } else if code_text == "Enter" || code_text == "Space" || code_text == "Escape" {
         recognized = true;
-    } else if let Some(number) = code_text.strip_prefix("F") {
-        if let Ok(n) = number.parse::<u8>() {
-            if (1..=12).contains(&n) {
-                recognized = true;
-            }
-        }
+    } else if let Some(number) = code_text.strip_prefix("F")
+        && let Ok(n) = number.parse::<u8>()
+        && (1..=12).contains(&n)
+    {
+        recognized = true;
     }
 
     if !recognized {
         return None;
     }
 
-    let modifiers =
-        event.modifiers() & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
+    let modifiers = event.modifiers() & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
 
     Some(ShortcutKeys { code, modifiers })
 }

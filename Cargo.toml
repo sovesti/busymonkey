@@ -68,5 +68,3 @@ test = ["server"]
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }
-wildcard_imports = "warn"
-unwrap_used = "warn"

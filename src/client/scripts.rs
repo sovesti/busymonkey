@@ -26,8 +26,8 @@ pub fn ScriptsView() -> Element {
 
 fn use_start_script() -> Action<(), ()> {
     use_action(move || async move {
-        if let Some(registry) = *use_settings::<ScriptSettingsRegistry>().read() {
-            start_script(registry.read().create_with_settings()).await
+        if let Some(registry) = use_settings::<ScriptSettingsRegistry>()() {
+            start_script(registry().create_with_settings()).await
         } else {
             Ok(())
         }

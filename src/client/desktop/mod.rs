@@ -1,3 +1,4 @@
+#[allow(unused)]
 pub(crate) mod browser;
 pub(crate) mod settings;
 mod tray;

@@ -4,7 +4,7 @@ use std::fmt::{self, Display};
 use std::time::Duration;
 
 use chrono::{DateTime, Local};
-pub use enigo::{Axis, Button, Coordinate, Direction, InputError, InputResult, Key, agent::Token};
+pub use enigo::{Axis, Button, Coordinate, Direction, Key, agent::Token};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TimedToken {
