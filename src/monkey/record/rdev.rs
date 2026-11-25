@@ -100,7 +100,7 @@ impl TryFrom<RdevEvent> for Vec<TimedToken> {
         };
         let timestamp = event.time.duration_since(UNIX_EPOCH)?;
         Ok(tokens
-            .into_iter()
+            .iter()
             .map(|token| TimedToken::new(timestamp, token.clone()))
             .collect())
     }

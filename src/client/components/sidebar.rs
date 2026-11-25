@@ -237,7 +237,7 @@ pub fn SidebarProvider(
     let merged = merge_attributes(vec![base, attributes]);
 
     rsx! {
-        div { ..merged, {children} }
+        div { ..merged,{children} }
     }
 }
 
@@ -304,8 +304,7 @@ pub fn Sidebar(
             "data-side": side.as_str(),
             "data-slot": "sidebar",
             div { class: Styles::dx_sidebar_gap, "data-slot": "sidebar-gap" }
-            div {
-                ..container_attrs,
+            div {..container_attrs,
                 div {
                     class: Styles::dx_sidebar_inner,
                     "data-sidebar": "sidebar",
@@ -387,7 +386,7 @@ pub fn SidebarInset(
     let merged = merge_attributes(vec![base, attributes]);
 
     rsx! {
-        main { ..merged, {children} }
+        main { ..merged,{children} }
     }
 }
 
@@ -404,7 +403,7 @@ pub fn SidebarHeader(
     let merged = merge_attributes(vec![base, attributes]);
 
     rsx! {
-        div { ..merged, {children} }
+        div { ..merged,{children} }
     }
 }
 
@@ -421,6 +420,6 @@ pub fn SidebarContent(
     let merged = merge_attributes(vec![base, attributes]);
 
     rsx! {
-        div { ..merged, {children} }
+        div { ..merged,{children} }
     }
 }

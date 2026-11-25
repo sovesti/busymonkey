@@ -14,7 +14,7 @@ struct ShortcutKeys {
 }
 
 impl ShortcutKeys {
-    fn to_label(&self) -> String {
+    fn as_label(&self) -> String {
         let mut label = String::new();
 
         if self.modifiers.contains(Modifiers::CONTROL) {
@@ -51,22 +51,14 @@ pub(crate) fn ShortuctSettingsView() -> Element {
     });
     let mut editing = use_signal(|| false);
 
-    let current_keys = shortcuts
-        .read()
-        .get(&ShortcutAction::ToggleScript)
-        .copied();
+    let current_keys = shortcuts.read().get(&ShortcutAction::ToggleScript).copied();
 
     rsx! {
-        div {
-            class: "w-full max-w-5xl text-text",
+        div { class: "w-full max-w-5xl text-text",
 
-            h2 {
-                class: "text-xl font-normal mb-6",
-                "Keyboard Shortcuts"
-            }
+            h2 { class: "text-xl font-normal mb-6", "Keyboard Shortcuts" }
 
-            table {
-                class: "w-full table-fixed border-collapse",
+            table { class: "w-full table-fixed border-collapse",
 
                 thead {
                     tr {
@@ -75,27 +67,17 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                             style: "width: 37%;",
                             "Action"
                         }
-                        th {
-                            class: "text-left font-normal text-lg pb-3",
-                            "Shortcut"
-                        }
-                        th {
-                            style: "width: 116px;",
-                        }
+                        th { class: "text-left font-normal text-lg pb-3", "Shortcut" }
+                        th { style: "width: 116px;" }
                     }
                 }
 
                 tbody {
-                    tr {
-                        class: "h-[72px] border-t border-surface1",
+                    tr { class: "h-[72px] border-t border-surface1",
 
-                        td {
-                            class: "py-3 pr-3",
-                            "Start/Stop script"
-                        }
+                        td { class: "py-3 pr-3", "Start/Stop script" }
 
-                        td {
-                            class: "py-3 pr-3",
+                        td { class: "py-3 pr-3",
                             if editing() {
                                 input {
                                     class: "w-full max-w-56 rounded-md border border-surface2 bg-base px-3 py-2 text-text focus:outline-2 focus:outline-blue-500",
@@ -111,17 +93,16 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                                             shortcuts.write().insert(ShortcutAction::ToggleScript, keys);
                                             editing.set(false);
                                         }
-                                    }
+                                    },
                                 }
                             } else if let Some(keys) = current_keys {
-                                "{keys.to_label()}"
+                                "{keys.as_label()}"
                             } else {
                                 "Not assigned"
                             }
                         }
 
-                        td {
-                            class: "py-3 text-right",
+                        td { class: "py-3 text-right",
                             if editing() {
                                 button {
                                     class: "w-24 rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",
@@ -153,26 +134,24 @@ fn shortcut_from_event(event: &KeyboardEvent) -> Option<ShortcutKeys> {
 
     let mut recognized = false;
 
-    if let Some(symbol) = symbol {
-        if symbol.len() == 1 {
-            recognized = true;
-        }
+    if let Some(symbol) = symbol
+        && symbol.len() == 1
+    {
+        recognized = true;
     } else if code_text == "Enter" || code_text == "Space" || code_text == "Escape" {
         recognized = true;
-    } else if let Some(number) = code_text.strip_prefix("F") {
-        if let Ok(n) = number.parse::<u8>() {
-            if (1..=12).contains(&n) {
-                recognized = true;
-            }
-        }
+    } else if let Some(number) = code_text.strip_prefix("F")
+        && let Ok(n) = number.parse::<u8>()
+        && (1..=12).contains(&n)
+    {
+        recognized = true;
     }
 
     if !recognized {
         return None;
     }
 
-    let modifiers =
-        event.modifiers() & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
+    let modifiers = event.modifiers() & (Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT);
 
     Some(ShortcutKeys { code, modifiers })
 }

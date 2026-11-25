@@ -32,7 +32,7 @@ pub trait InputChannel {
     fn subscribe(&self) -> DynTokenStream;
 }
 
-pub fn record_to(storage: impl RecordingStorage + Clone) -> UseFuture {
+pub fn use_recording(storage: impl RecordingStorage + Clone) -> UseFuture {
     let channel = use_input_channel();
     use_future(move || record_channel(storage.clone(), channel.clone()))
 }

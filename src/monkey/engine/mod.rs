@@ -1,7 +1,7 @@
 #[cfg(feature = "web")]
 mod web;
 
-pub use enigo::{Keyboard, Mouse, agent::Agent};
+pub use enigo::agent::Agent;
 
 pub trait MonkeyEngine: Agent {}
 

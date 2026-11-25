@@ -78,12 +78,10 @@ impl Default for TrayMenu {
     }
 }
 
-pub fn init() -> anyhow::Result<()> {
+pub fn use_tray() -> anyhow::Result<()> {
     let menu = TrayMenu::new();
-
-    bind_tray_menu_handler(menu.toggle.clone());
-
-    bind_window_closed_handler(menu.toggle.clone());
+    use_tray_menu_handler(menu.toggle.clone());
+    use_window_closed_handler(menu.toggle.clone());
     bind_context(menu)?;
     Ok(())
 }
@@ -99,7 +97,7 @@ fn bind_context(menu: TrayMenu) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn bind_tray_menu_handler(toggle: MenuItem) {
+fn use_tray_menu_handler(toggle: MenuItem) {
     fn toggle_tray(toggle: MenuItem) {
         let visible = window().window.is_visible();
         toggle.set_text(match visible {
@@ -119,7 +117,7 @@ fn bind_tray_menu_handler(toggle: MenuItem) {
     });
 }
 
-fn bind_window_closed_handler(toggle: MenuItem) {
+fn use_window_closed_handler(toggle: MenuItem) {
     use_wry_event_handler(move |event, _| window_closed(toggle.clone(), event));
 }
 

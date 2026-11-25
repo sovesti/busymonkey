@@ -41,7 +41,7 @@ impl ScriptSettingsRegistry {
 
     pub fn create_with_settings(&self) -> anyhow::Result<DynScript> {
         self.chosen_factory()
-            .ok_or_else(|| anyhow!("no factory for {}", &self.chosen))?
+            .ok_or_else(|| anyhow!("no factory for {}", self.chosen))?
             .create_from_data(self.current_settings())
     }
 
@@ -76,7 +76,7 @@ fn serialize_form(data: Rc<FormData>) -> anyhow::Result<json::Value> {
     {
         serialized(data)
     }
-    #[cfg(any(feature = "server", feature = "web"))]
+    #[cfg(not(feature = "desktop"))]
     {
         Ok(json::Value::Null)
     }

@@ -20,15 +20,15 @@ pub fn ScriptSettingsView() -> Element {
                 },
                 if let Some(factory) = registry().chosen_factory() {
                     for param in factory.create().iter() {
-                        ParameterControl { initial: registry().current_value(&param.name), param }
+                        ParameterControl {
+                            initial: registry().current_value(&param.name),
+                            param,
+                        }
                     }
-                },
-                Button {
-                    r#type: "submit",
-                    "Apply"
                 }
+                Button { r#type: "submit", "Apply" }
             }
-        },
+        }
         if let Some(Err(err)) = save.value() {
             p { class: "text-red", "{err}" }
         }
@@ -41,11 +41,25 @@ pub(crate) fn ParameterControl(param: Parameter, initial: serde_json::Value) -> 
     rsx! {
         match param.schema {
             ParameterSchema::Float(schema) => {
-                rsx! { float::Control { name, title: param.label, initial, schema } }
-            },
+                rsx! {
+                    float::Control {
+                        name,
+                        title: param.label,
+                        initial,
+                        schema,
+                    }
+                }
+            }
             ParameterSchema::Duration(schema) => {
-                rsx! { duration::Control { name, title: param.label, initial, schema } }
-            },
+                rsx! {
+                    duration::Control {
+                        name,
+                        title: param.label,
+                        initial,
+                        schema,
+                    }
+                }
+            }
         }
     }
 }

@@ -3,16 +3,16 @@ use dioxus_icons::lucide::{Keyboard, Mouse, MousePointer2, MousePointerClick};
 
 use crate::client::components::Button;
 use crate::monkey::model::{TimedToken, Token};
-use crate::monkey::record::record_to;
 use crate::monkey::record::storage::linear::{Linear, LinearStoreExt};
 use crate::monkey::record::storage::stoppable::{Stoppable, StoppableStoreExt};
 use crate::monkey::record::storage::truncate::{TruncateMoves, TruncateMovesStoreExt};
+use crate::monkey::record::use_recording;
 
 #[component]
 pub fn TemplatesView() -> Element {
     let mut running = use_signal(|| true);
     let storage = use_storage(running.into());
-    record_to(storage);
+    use_recording(storage);
     rsx! {
         div { class: "flex flex-col min-h-0 items-center m-1",
             Button { disabled: !running(), onclick: move |_| running.set(false), "Stop" }

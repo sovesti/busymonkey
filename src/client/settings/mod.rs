@@ -1,5 +1,7 @@
 use dioxus::prelude::*;
 
+use persistence::SettingsCategory;
+use registry::ScriptSettingsRegistry;
 use shortcut::ShortuctSettingsView;
 
 pub(crate) mod duration;
@@ -14,4 +16,11 @@ pub fn SettingsView() -> Element {
     rsx! {
         ShortuctSettingsView {}
     }
+}
+
+#[component]
+pub fn SettingsProvider(children: Element) -> Element {
+    let settings = use_resource(ScriptSettingsRegistry::load_or_default);
+    use_context_provider(|| settings);
+    children
 }
