@@ -1,5 +1,5 @@
-use anyhow::bail;
 use crate::monkey::model;
+use anyhow::bail;
 
 #[cfg(feature = "desktop")]
 #[cfg(target_os = "windows")]
@@ -114,11 +114,10 @@ pub fn rdev_to_monkey(code: rdev::Key) -> anyhow::Result<model::Key> {
     })
 }
 
-
 #[cfg(feature = "desktop")]
 #[cfg(target_os = "linux")]
 pub fn rdev_to_monkey(code: rdev::Key) -> anyhow::Result<model::Key> {
-        Ok(match code {
+    Ok(match code {
         rdev::Key::Alt => model::Key::LMenu,
         rdev::Key::AltGr => model::Key::ModeChange,
         rdev::Key::Backspace => model::Key::Backspace,

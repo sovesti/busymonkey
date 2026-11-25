@@ -4,6 +4,7 @@ pub(crate) mod model;
 pub(crate) mod record;
 #[allow(clippy::all)]
 #[allow(unused)]
+#[rustfmt::skip]
 pub(crate) mod script;
 
 #[cfg(not(feature = "web"))]
