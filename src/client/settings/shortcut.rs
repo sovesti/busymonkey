@@ -54,16 +54,11 @@ pub(crate) fn ShortuctSettingsView() -> Element {
     let current_keys = shortcuts.read().get(&ShortcutAction::ToggleScript).copied();
 
     rsx! {
-        div {
-            class: "w-full max-w-5xl text-text",
+        div { class: "w-full max-w-5xl text-text",
 
-            h2 {
-                class: "text-xl font-normal mb-6",
-                "Keyboard Shortcuts"
-            }
+            h2 { class: "text-xl font-normal mb-6", "Keyboard Shortcuts" }
 
-            table {
-                class: "w-full table-fixed border-collapse",
+            table { class: "w-full table-fixed border-collapse",
 
                 thead {
                     tr {
@@ -72,27 +67,17 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                             style: "width: 37%;",
                             "Action"
                         }
-                        th {
-                            class: "text-left font-normal text-lg pb-3",
-                            "Shortcut"
-                        }
-                        th {
-                            style: "width: 116px;",
-                        }
+                        th { class: "text-left font-normal text-lg pb-3", "Shortcut" }
+                        th { style: "width: 116px;" }
                     }
                 }
 
                 tbody {
-                    tr {
-                        class: "h-[72px] border-t border-surface1",
+                    tr { class: "h-[72px] border-t border-surface1",
 
-                        td {
-                            class: "py-3 pr-3",
-                            "Start/Stop script"
-                        }
+                        td { class: "py-3 pr-3", "Start/Stop script" }
 
-                        td {
-                            class: "py-3 pr-3",
+                        td { class: "py-3 pr-3",
                             if editing() {
                                 input {
                                     class: "w-full max-w-56 rounded-md border border-surface2 bg-base px-3 py-2 text-text focus:outline-2 focus:outline-blue-500",
@@ -108,7 +93,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                                             shortcuts.write().insert(ShortcutAction::ToggleScript, keys);
                                             editing.set(false);
                                         }
-                                    }
+                                    },
                                 }
                             } else if let Some(keys) = current_keys {
                                 "{keys.as_label()}"
@@ -117,8 +102,7 @@ pub(crate) fn ShortuctSettingsView() -> Element {
                             }
                         }
 
-                        td {
-                            class: "py-3 text-right",
+                        td { class: "py-3 text-right",
                             if editing() {
                                 button {
                                     class: "w-24 rounded-full border border-surface2 px-4 py-1 hover:bg-surface0",

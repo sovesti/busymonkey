@@ -20,8 +20,14 @@ pub fn Control(
     });
     let label = use_memo(move || format!("{title}: {}", format_time(from_millis(value()))));
     rsx! {
-        input { class: "hidden", r#type: "number", id: name.clone(), name: name.clone(), value },
-        label { for: name, "{label}" },
+        input {
+            class: "hidden",
+            r#type: "number",
+            id: name.clone(),
+            name: name.clone(),
+            value,
+        }
+        label { r#for: name, "{label}" }
         Slider {
             horizontal: true,
             min: into_millis(schema.from),
@@ -29,7 +35,7 @@ pub fn Control(
             step: into_millis(schema.to - schema.from) / 100.0,
             id: name.clone(),
             on_value_change: move |updated: f64| value.set(updated as u64),
-            value: Some(value() as f64)
+            value: Some(value() as f64),
         }
     }
 }

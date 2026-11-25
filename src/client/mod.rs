@@ -22,8 +22,7 @@ pub fn app() -> Element {
         Stylesheet { href: asset!("/assets/main.css") }
         Stylesheet { href: asset!("/assets/tailwind.css") }
         main {
-            div {
-                class: "min-h-screen bg-base p-4",
+            div { class: "min-h-screen bg-base p-4",
                 SettingsProvider { ViewsInSidebar {} }
             }
         }

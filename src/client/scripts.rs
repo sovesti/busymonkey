@@ -11,15 +11,10 @@ pub fn ScriptsView() -> Element {
     use_shortcut_on_desktop(use_start_script());
 
     rsx! {
-        ScriptSettingsView {},
-        p {
-            "Press space to toggle a script"
-        },
+        ScriptSettingsView {}
+        p { "Press space to toggle a script" }
         if let Some(Err(err)) = use_start_script().value() {
-            p {
-                class: "text-red",
-                {err.to_string()}
-            }
+            p { class: "text-red", {err.to_string()} }
         }
     }
 }
