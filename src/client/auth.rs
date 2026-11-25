@@ -82,7 +82,9 @@ fn SignInForm() -> Element {
 
 async fn try_sign_in(username: Signal<String>, password: Signal<String>) -> Result<()> {
     sign_in(username.to_string(), password.to_string()).await?;
-    use_context::<AuthenticationState>().authorized.set(true);
+    consume_context::<AuthenticationState>()
+        .authorized
+        .set(true);
     Ok(())
 }
 

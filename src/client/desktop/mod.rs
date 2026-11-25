@@ -14,13 +14,13 @@ pub fn launch() {
 
 #[component]
 fn AppInTray() -> Element {
-    try_init();
+    use_tray();
     use_browser();
     app()
 }
 
-fn try_init() {
-    match tray::init() {
+fn use_tray() {
+    match tray::use_tray() {
         Ok(()) => {}
         Err(err) => error!("failed to initialize tray icon: {err:?}"),
     }

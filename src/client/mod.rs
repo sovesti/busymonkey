@@ -10,11 +10,11 @@ mod views;
 use dioxus::prelude::*;
 use views::ViewsInSidebar;
 
-use crate::client::settings::{persistence::provide_settings, registry::ScriptSettingsRegistry};
 use crate::monkey::record::provide_input_channel;
+use settings::SettingsProvider;
+use settings::registry::ScriptSettingsRegistry;
 
 pub fn app() -> Element {
-    provide_settings::<ScriptSettingsRegistry>();
     provide_input_channel();
     rsx! {
         document::Link { rel: "icon", href: asset!("/assets/favicon.ico") }
@@ -24,7 +24,7 @@ pub fn app() -> Element {
         main {
             div {
                 class: "min-h-screen bg-base p-4",
-                ViewsInSidebar {}
+                SettingsProvider { ViewsInSidebar {} }
             }
         }
     }
