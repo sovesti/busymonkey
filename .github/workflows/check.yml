@@ -50,6 +50,8 @@ jobs:
           targets: ${{ matrix.target }}
           components: clippy
       - uses: Swatinem/rust-cache@v2
+      - name: Install Dioxus
+        run: cargo install dioxus-cli
       - name: Check project
         run: cargo check --locked --target ${{ matrix.target }} --features ${{ matrix.feature }}
       - name: Run tests
