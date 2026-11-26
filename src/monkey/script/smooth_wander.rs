@@ -93,15 +93,12 @@ fn parse_cfg(value: serde_json::Value) -> anyhow::Result<SmoothWanderCfg> {
         y: get_f64_key("y", &value)?,
         w: get_f64_key("w", &value)?,
         h: get_f64_key("h", &value)?,
-        delay: Duration::from_secs_f64(get_f64_key("delay", &value)?),
+        delay: Duration::from_secs_f64(get_f64_key("delay", &value)? / 1000f64),
     })
 }
 
 fn smooth_wander(value: serde_json::Value) -> anyhow::Result<DynScript> {
-    println!("assemble smooth wander script from settings\n{value}");
-    let cfg = parse_cfg(value);
-    println!("gives: {cfg:?}");
-    Ok(Box::new(SmoothWanderScript::new(cfg?)))
+    Ok(Box::new(SmoothWanderScript::new(parse_cfg(value)?)))
 }
 
 inventory::submit! {
