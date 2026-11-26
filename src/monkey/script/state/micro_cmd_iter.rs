@@ -1,5 +1,7 @@
 use std::iter::Fuse;
 
+use tokio::time::Instant;
+
 use crate::monkey::script::{
     command::MicroCommand,
     state::MicroCmd,
@@ -50,7 +52,7 @@ impl<T: Iterator<Item = MicroCommand>> UserTokenProto for MicroCmdIter<T> {
             .map_or_default(|proto| proto.poll_action(state))
     }
 
-    fn poll_timeout(&mut self, state: &UserState) -> Option<tokio::time::Instant> {
+    fn poll_timeout(&mut self, state: &UserState) -> Option<Instant> {
         self.propagate(state);
         self.active
             .as_mut()

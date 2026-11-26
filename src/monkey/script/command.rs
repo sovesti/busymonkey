@@ -48,3 +48,9 @@ impl Command {
         }
     }
 }
+
+pub trait Script: Iterator<Item = Command> {}
+
+pub type DynScript = Box<dyn Script>;
+
+impl<T: Iterator<Item = Command>> Script for T {}

@@ -12,7 +12,7 @@ pub use cfg::{UserBuilder, UserCfg};
 pub use click::ClickToken;
 pub use command_into_proto::{CommandIntoProto, fallback};
 pub use cursor::{CursorState, CursorToken};
-pub use dispatcher::{Script, DynScript, UserCommandDispatcher};
+pub use dispatcher::UserCommandDispatcher;
 pub use init::{FromInit, Init, TakeSnap};
 pub use keyboard::KeyboardToken;
 pub use state::{PreToken, UserState, UserTokenProto};

@@ -2,20 +2,12 @@ use enigo::agent::Token;
 use tokio::time::Instant;
 
 use crate::monkey::script::{
-    TokenProto,
-    command::Command,
-    user::{
+    TokenProto, command::{Command, Script}, user::{
         CommandIntoProto, UserState,
         init::{FromInit, Init},
         state::{TokenSource, UserTokenProto},
     },
 };
-
-pub trait Script: Iterator<Item = Command> {}
-
-pub type DynScript = Box<dyn Script>;
-
-impl<T: Iterator<Item = Command>> Script for T {}
 
 pub struct UserCommandDispatcher<T: CommandIntoProto, U: Script> {
     active: Option<Box<dyn UserTokenProto>>,

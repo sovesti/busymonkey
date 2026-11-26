@@ -1,7 +1,7 @@
 use enigo::agent::Agent;
 use tokio::time::Instant;
 
-use crate::monkey::{engine, script::{DynScript, TokenProto, user::{Init, TakeSnap, UserBuilder, UserCommandDispatcher, fallback}}};
+use crate::monkey::{engine, script::{TokenProto, command::DynScript, user::{Init, TakeSnap, UserBuilder, UserCommandDispatcher, fallback}}};
 
 pub async fn start_script(script: anyhow::Result<DynScript>) -> anyhow::Result<()> {
     println!("start script {}", script.is_ok());

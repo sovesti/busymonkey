@@ -1,10 +1,14 @@
 use crate::monkey::{Instant, model::Token};
 
 mod command;
+#[cfg(feature = "desktop")]
 mod state;
+#[cfg(feature = "desktop")]
 mod user;
+#[cfg(feature = "desktop")]
 mod util;
-mod smooth;
+#[cfg(feature = "desktop")]
+mod smooth_wander;
 #[cfg(feature = "desktop")]
 mod run;
 
@@ -14,9 +18,7 @@ pub use run::start_script;
 pub async fn start_script(script: anyhow::Result<DynScript>) -> anyhow::Result<()> {
     anyhow::bail!("Can only run scripts on desktop")
 }
-pub use user::DynScript;
-
-
+pub use command::DynScript;
 
 pub trait TokenProto {
     fn poll_action(&mut self) -> Option<Token>;

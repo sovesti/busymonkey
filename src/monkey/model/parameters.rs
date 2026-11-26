@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::monkey::script::MonkeyScript;
+use crate::monkey::script::DynScript;
 
 inventory::collect!(ScriptFactory);
 
@@ -15,8 +15,6 @@ impl ScriptParametersSchema {
         self.defined.clone().into_iter()
     }
 }
-
-pub type DynScript = Box<dyn MonkeyScript>;
 
 pub struct ScriptFactory {
     key: &'static str,

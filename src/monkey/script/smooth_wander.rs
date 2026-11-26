@@ -80,13 +80,20 @@ impl Iterator for SmoothWanderScript {
     }
 }
 
+fn get_f64_key(key: &str, value: &serde_json::Value) -> anyhow::Result<f64> {
+    value
+        .get(key).ok_or(anyhow!("No {key} value"))?
+        .as_str().ok_or(anyhow!("{key} is not string"))?
+        .parse::<f64>().context("Value is not correct f64")
+}
+
 fn parse_cfg(value: serde_json::Value) -> anyhow::Result<SmoothWanderCfg> {
     Ok(SmoothWanderCfg {
-        x: value.get("x").ok_or(anyhow!("No x value"))?.as_f64().ok_or(anyhow!("x value not float"))?,
-        y: value.get("y").ok_or(anyhow!("No y value"))?.as_f64().ok_or(anyhow!("y value not float"))?,
-        w: value.get("w").ok_or(anyhow!("No w value"))?.as_f64().ok_or(anyhow!("w value not float"))?,
-        h: value.get("h").ok_or(anyhow!("No h value"))?.as_f64().ok_or(anyhow!("h value not float"))?,
-        delay: Duration::from_secs_f64(value.get("delay").ok_or(anyhow!("No delay value"))?.as_f64().ok_or(anyhow!("delay value not float"))?),
+        x: get_f64_key("x", &value)?,
+        y: get_f64_key("y", &value)?,
+        w: get_f64_key("w", &value)?,
+        h: get_f64_key("h", &value)?,
+        delay: Duration::from_secs_f64(get_f64_key("delay", &value)?),
     })
 }
 
