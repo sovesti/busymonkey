@@ -20,8 +20,9 @@ pub fn ScriptsView() -> Element {
 }
 
 fn use_start_script() -> Action<(), ()> {
+    let settings = use_settings::<ScriptSettingsRegistry>();
     use_action(move || async move {
-        if let Some(registry) = use_settings::<ScriptSettingsRegistry>()() {
+        if let Some(registry) = settings() {
             start_script(registry().create_with_settings()).await
         } else {
             Ok(())
