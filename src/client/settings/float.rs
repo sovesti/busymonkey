@@ -23,6 +23,7 @@ pub fn Control(
             r#type: "number",
             id: name.clone(),
             name: name.clone(),
+            step: "any",
             value,
         }
         label { r#for: name, "{label}" }
