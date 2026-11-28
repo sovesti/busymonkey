@@ -2,10 +2,7 @@ use std::collections::VecDeque;
 
 use super::UserCfg;
 use crate::monkey::script::user::{
-    click::{ClickBuf, ClickToken},
-    cursor::{CursorBuf, CursorState, CursorToken},
-    init::{FromInit, Init},
-    keyboard::{KeyboardBuf, KeyboardToken},
+    ScrollToken, click::{ClickBuf, ClickToken}, cursor::{CursorBuf, CursorState, CursorToken}, init::{FromInit, Init}, keyboard::{KeyboardBuf, KeyboardToken}, scroll::ScrollBuf,
 };
 use enigo::agent::Token;
 use tokio::time::Instant;
@@ -15,15 +12,7 @@ pub enum PreToken {
     Cursor(CursorToken),
     Click(ClickToken),
     Keyboard(KeyboardToken),
-}
-
-impl PreToken {
-    fn cursor_token(self) -> CursorToken {
-        match self {
-            Self::Cursor(token) => token,
-            _ => CursorToken::default(),
-        }
-    }
+    Scroll(ScrollToken),
 }
 
 impl Default for PreToken {
@@ -46,6 +35,7 @@ pub struct UserState {
     cursor: CursorBuf,
     click: ClickBuf,
     keyboard: KeyboardBuf,
+    scroll: ScrollBuf,
     tokens: VecDeque<Token>,
 }
 
@@ -57,6 +47,7 @@ impl FromInit for UserState {
             cursor: CursorBuf::from_init(init),
             click: ClickBuf::from_init(init),
             keyboard: KeyboardBuf::from_init(init),
+            scroll: ScrollBuf::from_init(init),
             tokens: VecDeque::new(),
         }
     }
@@ -72,10 +63,13 @@ impl TokenSource for UserState {
     }
 
     fn handle_pre_token(&mut self, token: PreToken) {
-        if let Some(token) = self
-            .cursor
-            .handle_token(token.cursor_token(), self.now, &self.cfg)
-        {
+        if let Some(token) = match token {
+            PreToken::Cursor(token) => self.cursor.handle_token(token, self.now, &self.cfg),
+            PreToken::Click(token) => Some(self.click.handle_token(token)),
+            PreToken::Keyboard(token) => Some(self.keyboard.handle_token(token)),
+            PreToken::Scroll(token) => Some(self.scroll.handle_token(token)),
+            PreToken::Skip => None,
+        } {
             self.tokens.push_front(token);
         }
     }
