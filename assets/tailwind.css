@@ -247,8 +247,14 @@
   .w-3\/4 {
     width: calc(3/4 * 100%);
   }
+  .w-7\/8 {
+    width: calc(7/8 * 100%);
+  }
   .w-64 {
     width: calc(var(--spacing) * 64);
+  }
+  .w-96 {
+    width: calc(var(--spacing) * 96);
   }
   .w-full {
     width: 100%;
@@ -291,6 +297,9 @@
   }
   .justify-center {
     justify-content: center;
+  }
+  .justify-end {
+    justify-content: flex-end;
   }
   .justify-start {
     justify-content: flex-start;
@@ -518,6 +527,18 @@
           box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
         }
       }
+    }
+  }
+  .disabled\:bg-crust {
+    &:disabled {
+      background-color: var(--dark, oklch(0.18 0.02 284.2))
+        var(--light, oklch(0.91 0.01 264.51));
+    }
+  }
+  .disabled\:text-text {
+    &:disabled {
+      color: var(--dark, oklch(0.88 0.04 272.28))
+        var(--light, oklch(0.44 0.04 279.33));
     }
   }
 }
