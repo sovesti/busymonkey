@@ -1,54 +1,47 @@
-use crate::monkey::script::{MonkeyScript, command::CommandState};
-use enigo::agent::Token;
+use crate::monkey::{
+    Instant,
+    script::user::{PreToken, UserState, UserTokenProto},
+};
 use std::time::Duration;
-use crate::monkey::Instant;
 
 pub trait TimedIterator {
     type Item;
-    fn next(&mut self, delta: Duration) -> Option<Self::Item>;
+    fn next(&mut self, state: &mut UserState, delta: Duration) -> Option<Self::Item>;
 
-    fn is_finished(&mut self) -> bool;
+    fn is_finished(&mut self, state: &UserState) -> bool;
 }
 
-pub struct PollRateYield<T: TimedIterator<Item = Token>> {
+pub struct PollRateYield<T: TimedIterator<Item = PreToken>> {
     iter: T,
     last: Instant,
-    now: Instant,
     rate: Duration,
 }
 
-impl<T: TimedIterator<Item = Token>> PollRateYield<T> {
-    pub fn new(iter: T, rate: Duration, now: Instant) -> Self {
+impl<T: TimedIterator<Item = PreToken>> PollRateYield<T> {
+    pub fn new(state: &UserState, iter: T) -> Self {
         Self {
             iter: iter,
-            rate,
-            now,
-            last: now,
+            rate: state.cfg().poll_rate,
+            last: state.now(),
         }
     }
 }
 
-impl<T: TimedIterator<Item = Token>> MonkeyScript for PollRateYield<T> {
-    fn poll_action(&mut self) -> Option<Token> {
-        if self.now < self.last {
-            None
+impl<T: TimedIterator<Item = PreToken>> UserTokenProto for PollRateYield<T> {
+    fn poll_action(&mut self, state: &mut UserState) -> PreToken {
+        if state.now() >= self.last + self.rate {
+            self.last = state.now();
+            self.iter.next(state, self.rate).unwrap_or_default()
         } else {
-            self.last += self.rate;
-            self.iter.next(self.rate)
+            PreToken::Skip
         }
     }
 
-    fn poll_timeout(&mut self) -> Option<Instant> {
+    fn poll_timeout(&mut self, _state: &UserState) -> Option<Instant> {
         Some(self.last + self.rate)
     }
 
-    fn handle_timeout(&mut self, now: Instant) {
-        self.now = now;
-    }
-}
-
-impl<T: TimedIterator<Item = Token>> CommandState for PollRateYield<T> {
-    fn is_finished(&mut self) -> bool {
-        self.iter.is_finished()
+    fn is_finished(&mut self, state: &UserState) -> bool {
+        self.iter.is_finished(state)
     }
 }

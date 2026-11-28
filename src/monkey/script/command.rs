@@ -1,9 +1,12 @@
-use crate::monkey::script::MonkeyScript;
 use enigo::{Button, Direction, Key};
-use std::iter::{Iterator, once, repeat};
+use std::{
+    iter::{Iterator, once, repeat},
+    time::Duration,
+};
 
 /// Middle-level commands to be turned into sequence of `Token`s
 pub enum MicroCommand {
+    Idle(Duration),
     MoveToRect(i32, i32, i32, i32),
     MouseButton(Button, Direction),
     Key(Key, Direction),
@@ -46,9 +49,8 @@ impl Command {
     }
 }
 
-/// A state, built from a single Command, yielding a sequence of `Token`s,
-/// handling timeouts and current mouse position, and reporting finish of the
-/// command execution
-pub trait CommandState: MonkeyScript {
-    fn is_finished(&mut self) -> bool;
-}
+pub trait Script: Iterator<Item = Command> {}
+
+pub type DynScript = Box<dyn Script>;
+
+impl<T: Iterator<Item = Command>> Script for T {}

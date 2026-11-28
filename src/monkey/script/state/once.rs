@@ -1,36 +1,32 @@
-use enigo::agent::Token;
-use crate::monkey::Instant;
-
-use crate::monkey::script::{MonkeyScript, command::CommandState, user::User};
+use crate::monkey::{
+    Instant,
+    script::user::{PreToken, UserState, UserTokenProto},
+};
 
 pub struct Once {
-    token: Option<Token>,
+    token: Option<PreToken>,
     finish: Instant,
 }
 
 impl Once {
-    pub fn new(user: &User, token: Token, time: Instant) -> Self {
+    pub fn new(state: &UserState, token: PreToken) -> Self {
         Self {
             token: Some(token),
-            finish: time + user.poll_rate,
+            finish: state.now() + state.cfg().poll_rate,
         }
     }
 }
 
-impl MonkeyScript for Once {
-    fn poll_action(&mut self) -> Option<Token> {
-        self.token.take()
+impl UserTokenProto for Once {
+    fn poll_action(&mut self, _state: &mut UserState) -> PreToken {
+        self.token.take().unwrap_or_default()
     }
 
-    fn poll_timeout(&mut self) -> Option<Instant> {
+    fn poll_timeout(&mut self, _state: &UserState) -> Option<Instant> {
         Some(self.finish)
     }
 
-    fn handle_timeout(&mut self, _now: Instant) {}
-}
-
-impl CommandState for Once {
-    fn is_finished(&mut self) -> bool {
+    fn is_finished(&mut self, _state: &UserState) -> bool {
         matches!(self.token, None)
     }
 }
