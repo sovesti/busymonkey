@@ -14,7 +14,6 @@ pub fn ScriptsView() -> Element {
 
     rsx! {
         ScriptSettingsView {}
-        p { "Press space to toggle a script" }
         if let Some(Err(err)) = use_start_script().value() {
             p { class: "text-red", {err.to_string()} }
         }
