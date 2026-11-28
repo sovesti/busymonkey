@@ -1,9 +1,7 @@
 use tokio::time::Instant;
 
 use crate::monkey::script::{
-    command::MicroCommand,
-    state::{idle, once::Once, smooth_move::smooth_move},
-    user::{ClickToken, KeyboardToken, PreToken, UserState, UserTokenProto},
+    command::MicroCommand, state::{idle, once::Once, smooth_move::smooth_move}, user::{ClickToken, KeyboardToken, PreToken, ScrollToken, UserState, UserTokenProto},
 };
 
 pub struct MicroCmd {
@@ -14,7 +12,7 @@ impl MicroCmd {
     pub fn new(cmd: MicroCommand, state: &UserState) -> Self {
         Self {
             inner: match cmd {
-                MicroCommand::MoveToRect(x, y, w, h) => Box::new(smooth_move(state, x, y, w, h)),
+                MicroCommand::MoveToPosition(x, y, duration) => Box::new(smooth_move(state, x, y, duration)),
                 MicroCommand::MouseButton(btn, dir) => {
                     Box::new(Once::new(state, PreToken::Click(ClickToken { btn, dir })))
                 }
@@ -23,6 +21,7 @@ impl MicroCmd {
                     PreToken::Keyboard(KeyboardToken { key, dir }),
                 )),
                 MicroCommand::Idle(duration) => Box::new(idle(state, duration)),
+                MicroCommand::Scroll(val, axis) => Box::new(Once::new(state, PreToken::Scroll(ScrollToken { val, axis }))),
             },
         }
     }

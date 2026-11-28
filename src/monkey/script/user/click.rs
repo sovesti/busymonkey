@@ -17,7 +17,7 @@ impl FromInit for ClickBuf {
 }
 
 impl ClickBuf {
-    pub fn handle_click_token(&mut self, token: ClickToken) -> Token {
+    pub fn handle_token(&mut self, token: ClickToken) -> Token {
         Token::Button(token.btn, token.dir)
     }
 }
