@@ -6,6 +6,7 @@ mod dispatcher;
 mod init;
 mod keyboard;
 mod reaction_buf;
+mod scroll;
 mod state;
 
 pub use cfg::{UserBuilder, UserCfg};
@@ -15,4 +16,5 @@ pub use cursor::{CursorState, CursorToken};
 pub use dispatcher::UserCommandDispatcher;
 pub use init::{FromInit, Init, TakeSnap};
 pub use keyboard::KeyboardToken;
+pub use scroll::ScrollToken;
 pub use state::{PreToken, UserState, UserTokenProto};

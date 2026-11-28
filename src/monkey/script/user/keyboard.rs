@@ -16,7 +16,7 @@ impl FromInit for KeyboardBuf {
 }
 
 impl KeyboardBuf {
-    pub fn handle_keyboard_token(&mut self, token: KeyboardToken) -> Token {
+    pub fn handle_token(&mut self, token: KeyboardToken) -> Token {
         Token::Key(token.key, token.dir)
     }
 }

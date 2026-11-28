@@ -40,10 +40,26 @@ impl SmoothWanderCfg {
     }
 }
 
+enum SmoothWanderPhase {
+    Move,
+    Click,
+    Idle,
+}
+
+impl SmoothWanderPhase {
+    fn next(&mut self) {
+        match self {
+            Self::Move => *self = Self::Click,
+            Self::Click => *self = Self::Idle,
+            Self::Idle => *self = Self::Move,
+        }
+    }
+}
+
 struct SmoothWanderScript {
     cfg: SmoothWanderCfg,
     rng: SmallRng,
-    is_delay: bool,
+    phase: SmoothWanderPhase,
 }
 
 impl SmoothWanderScript {
@@ -51,7 +67,7 @@ impl SmoothWanderScript {
         Self {
             cfg,
             rng: rand::make_rng(),
-            is_delay: false,
+            phase: SmoothWanderPhase::Idle,
         }
     }
 }
@@ -60,22 +76,27 @@ impl Iterator for SmoothWanderScript {
     type Item = Command;
 
     fn next(&mut self) -> Option<Command> {
-        self.is_delay = !self.is_delay;
-        if self.is_delay {
-            println!("idle");
-            Some(Command::Single(MicroCommand::Idle(self.cfg.delay)))
-        } else {
-            let (range_x, range_y) = self.cfg.ranges();
-            let x = self.rng.random_range(range_x);
-            let y = self.rng.random_range(range_y);
-            println!("move to rect");
-            Some(Command::Single(MicroCommand::MoveToRect(
-                x - 5,
-                y - 5,
-                10,
-                10,
-            )))
-        }
+        let ret = match self.phase {
+            SmoothWanderPhase::Move => {
+                let (range_x, range_y) = self.cfg.ranges();
+                let x = self.rng.random_range(range_x);
+                let y = self.rng.random_range(range_y);
+                println!("move to pos");
+                Command::Single(MicroCommand::MoveToPosition(
+                    x, y, Duration::from_millis(1000)
+                ))
+            },
+            SmoothWanderPhase::Click => {
+                println!("click");
+                Command::Single(MicroCommand::MouseButton(enigo::Button::Right, enigo::Direction::Click))
+            },
+            SmoothWanderPhase::Idle => {
+                println!("idle");
+                Command::Single(MicroCommand::Idle(self.cfg.delay))
+            },
+        };
+        self.phase.next();
+        Some(ret)
     }
 }
 

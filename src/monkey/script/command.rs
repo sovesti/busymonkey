@@ -1,4 +1,4 @@
-use enigo::{Button, Direction, Key};
+use enigo::{Axis, Button, Direction, Key, agent::Token};
 use std::{
     iter::{Iterator, once, repeat},
     time::Duration,
@@ -8,9 +8,10 @@ use std::{
 #[derive(Clone)]
 pub enum MicroCommand {
     Idle(Duration),
-    MoveToRect(i32, i32, i32, i32),
+    MoveToPosition(i32, i32, Duration),
     MouseButton(Button, Direction),
     Key(Key, Direction),
+    Scroll(i32, Axis),
 }
 
 impl MicroCommand {
@@ -32,6 +33,7 @@ impl MicroCommand {
 pub enum Command {
     Single(MicroCommand),
     Shortcut(Vec<Key>),
+    Text(String),
 }
 
 impl Command {
@@ -47,6 +49,7 @@ impl Command {
                         keys.into_iter().map(move |key| MicroCommand::Key(key, dir))
                     }),
             ),
+            Command::Text(txt) => todo!(),
         }
     }
 }
