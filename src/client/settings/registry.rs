@@ -11,18 +11,22 @@ use crate::client::settings::persistence::SettingsCategory;
 use crate::monkey::model::parameters::ScriptFactory;
 use crate::monkey::script::DynScript;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize, Store)]
 pub struct ScriptSettingsRegistry {
     chosen: String,
     known: HashMap<String, json::Value>,
 }
 
-impl ScriptSettingsRegistry {
-    pub fn current_settings(&self) -> json::Value {
-        self.known.get(&self.chosen()).cloned().unwrap_or_default()
+#[store(pub)]
+impl<Lens> Store<ScriptSettingsRegistry, Lens> {
+    fn current_settings(&self) -> json::Value {
+        self.known()
+            .get(self.chosen().read().to_owned())
+            .map(|store| store.cloned())
+            .unwrap_or_default()
     }
 
-    pub fn current_value<V: DeserializeOwned + Default>(&self, key: &str) -> V {
+    fn current_value<V: DeserializeOwned + Default>(&self, key: &str) -> V {
         self.current_settings()
             .as_object()
             .and_then(|obj| obj.get(key).cloned())
@@ -31,29 +35,29 @@ impl ScriptSettingsRegistry {
             .unwrap_or_default()
     }
 
-    pub fn store_settings(&mut self, data: Rc<FormData>) {
+    fn store_settings(&mut self, data: Rc<FormData>) {
         match serialize_form(data.clone()) {
             Ok(plain) => {
-                self.known.insert(self.chosen(), plain);
+                self.known().insert(self.chosen().cloned(), plain);
             }
             Err(err) => error!("failed to store settings {data:?}: {err:?}"),
         }
     }
 
-    pub fn create_with_settings(&self) -> anyhow::Result<DynScript> {
+    fn create_with_settings(&self) -> anyhow::Result<DynScript> {
         self.chosen_factory()
-            .ok_or_else(|| anyhow!("no factory for {}", self.chosen))?
+            .ok_or_else(|| anyhow!("no factory for {}", self.chosen()))?
             .create_from_data(self.current_settings())
     }
 
-    pub fn chosen_factory(&self) -> Option<&ScriptFactory> {
+    fn chosen_factory(&self) -> Option<&ScriptFactory> {
         inventory::iter::<ScriptFactory>
             .into_iter()
-            .find(|factory| factory.has_key(&self.chosen))
+            .find(|factory| factory.has_key(self.chosen().read().as_str()))
     }
 
-    fn chosen(&self) -> String {
-        self.chosen.clone()
+    fn choose(&mut self, key: String) {
+        self.chosen().set(key);
     }
 }
 
@@ -77,7 +81,7 @@ fn serialize_form(data: Rc<FormData>) -> anyhow::Result<json::Value> {
     {
         serialized(data)
     }
-    #[cfg(not(feature = "desktop"))]
+    #[cfg(any(feature = "server", feature = "web"))]
     {
         Ok(json::Value::Null)
     }

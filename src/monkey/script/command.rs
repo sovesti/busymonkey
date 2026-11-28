@@ -5,6 +5,7 @@ use std::{
 };
 
 /// Middle-level commands to be turned into sequence of `Token`s
+#[derive(Clone)]
 pub enum MicroCommand {
     Idle(Duration),
     MoveToPosition(i32, i32, Duration),
@@ -27,6 +28,7 @@ impl MicroCommand {
 /// additional semantics, which interpreter may or may not use.
 ///
 /// Must have a fallback to a sequence of microcommands (`into_micros` method)
+#[derive(Clone)]
 #[non_exhaustive]
 pub enum Command {
     Single(MicroCommand),

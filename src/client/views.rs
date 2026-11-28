@@ -4,7 +4,7 @@ use dioxus::prelude::*;
 use dioxus_icons::lucide::{BookDashed, CircleUser, Cog, ScrollText};
 
 use crate::client::components::{
-    Button, ButtonAlignment, ButtonSize, ButtonVariant, SidebarContent, use_sidebar,
+    Button, ButtonAlignment, ButtonSize, ButtonVariant, SidebarContent, ToastProvider, use_sidebar,
 };
 use crate::client::templates::TemplatesView;
 
@@ -29,7 +29,9 @@ pub fn ViewsInSidebar() -> Element {
                 }
             }
             SidebarInset {
-                CurrentView { current }
+                ToastProvider {
+                    CurrentView { current }
+                }
             }
         }
     }
@@ -44,6 +46,7 @@ fn ViewButton(view: View, mut current: Signal<View>) -> Element {
             alignment: ButtonAlignment::Left,
             size: if ctx.open() { ButtonSize::Default } else { ButtonSize::Icon },
             onclick: move |_| current.set(view),
+            disabled: view == current(),
             Icon { view }
             if ctx.open() {
                 span { "{view}" }

@@ -18,7 +18,7 @@ pub fn Control(
             .and_then(|val| val.parse().ok())
             .unwrap_or_default()
     });
-    let label = use_memo(move || format!("{title}: {}", format_time(from_millis(value()))));
+    let label = use_memo(move || format_time(from_millis(value())));
     rsx! {
         input {
             class: "hidden",
@@ -27,7 +27,10 @@ pub fn Control(
             name: name.clone(),
             value,
         }
-        label { r#for: name, "{label}" }
+        div { class: "flex flex-row justify-between",
+            label { r#for: name, {title} }
+            {label}
+        }
         Slider {
             horizontal: true,
             min: into_millis(schema.from),
@@ -49,7 +52,9 @@ fn from_millis(millis: u64) -> Duration {
 }
 
 fn format_time(duration: Duration) -> String {
-    if duration.as_secs() > 0 {
+    if duration.as_secs() >= 60 {
+        format!("{:.2} m", (duration.as_millis() as f64) / 60000.0)
+    } else if duration.as_secs() > 0 {
         format!("{:.2} s", (duration.as_millis() as f64) / 1000.0)
     } else {
         format!("{} ms", duration.as_millis())

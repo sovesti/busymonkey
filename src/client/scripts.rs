@@ -1,7 +1,9 @@
 use dioxus::prelude::*;
 
 use crate::client::settings::persistence::use_settings;
-use crate::client::settings::registry::ScriptSettingsRegistry;
+use crate::client::settings::registry::{
+    ScriptSettingsRegistry, ScriptSettingsRegistryStoreImplExt,
+};
 use crate::client::settings::scripts::ScriptSettingsView;
 use crate::monkey::script::start_script;
 
@@ -12,7 +14,6 @@ pub fn ScriptsView() -> Element {
 
     rsx! {
         ScriptSettingsView {}
-        p { "Press space to toggle a script" }
         if let Some(Err(err)) = use_start_script().value() {
             p { class: "text-red", {err.to_string()} }
         }
@@ -23,7 +24,7 @@ fn use_start_script() -> Action<(), ()> {
     let settings = use_settings::<ScriptSettingsRegistry>();
     use_action(move || async move {
         if let Some(registry) = settings() {
-            start_script(registry().create_with_settings()).await
+            start_script(registry.create_with_settings()).await
         } else {
             Ok(())
         }
@@ -41,12 +42,19 @@ fn toggle_script(script: &mut Action<(), ()>) {
 
 #[cfg(feature = "desktop")]
 fn use_shortcut_on_desktop(mut script: Action<(), ()>) {
-    dioxus::desktop::use_global_shortcut(KeyCode::Space, move |st| {
-        if st == dioxus::desktop::HotKeyState::Released {
-            return;
-        }
+    use dioxus::desktop::tao::keyboard::ModifiersState;
 
-        toggle_script(&mut script);
-    })
+    dioxus::desktop::use_global_shortcut(
+        (
+            KeyCode::Space,
+            ModifiersState::empty() | ModifiersState::CONTROL | ModifiersState::SHIFT,
+        ),
+        move |st| {
+            if st == dioxus::desktop::HotKeyState::Released {
+                return;
+            }
+            toggle_script(&mut script);
+        },
+    )
     .unwrap();
 }

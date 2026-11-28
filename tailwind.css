@@ -3,14 +3,24 @@
 @theme inline {
     --color-rosewater: var(--dark, oklch(0.92 0.02 30.49))
         var(--light, oklch(0.71 0.1 33.1));
-    --color-error: var(--dark, oklch(0.76 0.13 2.76))
-        var(--light, oklch(0.55 0.22 19.81));
-    --color-peach: var(--dark, oklch(0.82 0.1 52.63))
+    --color-error: var(--dark, oklch(0.81 0.13 2.76))
+        var(--light, oklch(0.5 0.22 19.81));
+    --color-peach1: var(--dark, oklch(0.87 0.1 52.63))
+        var(--light, oklch(0.59 0.2 42.43));
+    --color-peach2: var(--dark, oklch(0.82 0.1 52.63))
         var(--light, oklch(0.69 0.2 42.43));
-    --color-warning: var(--dark, oklch(0.92 0.07 86.53))
-        var(--light, oklch(0.71 0.15 67.78));
-    --color-success: var(--dark, oklch(0.86 0.11 142.72))
-        var(--light, oklch(0.63 0.18 140.44));
+    --color-peach3: var(--dark, oklch(0.77 0.1 52.63))
+        var(--light, oklch(0.74 0.2 42.43));
+    --color-peach4: var(--dark, oklch(0.72 0.1 52.63))
+        var(--light, oklch(0.79 0.2 42.43));
+    --color-peach5: var(--dark, oklch(0.67 0.1 52.63))
+        var(--light, oklch(0.84 0.2 42.43));
+    --color-peach6: var(--dark, oklch(0.62 0.1 52.63))
+        var(--light, oklch(0.89 0.2 42.43));
+    --color-warning: var(--dark, oklch(0.97 0.07 86.53))
+        var(--light, oklch(0.66 0.15 67.78));
+    --color-success: var(--dark, oklch(0.91 0.11 142.72))
+        var(--light, oklch(0.58 0.18 140.44));
     --color-link: var(--dark, oklch(0.77 0.11 259.88))
         var(--light, oklch(0.56 0.23 262.09));
     --color-text: var(--dark, oklch(0.88 0.04 272.28))

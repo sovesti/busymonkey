@@ -1,10 +1,14 @@
 use enigo::agent::Agent;
 use tokio::time::Instant;
 
-use crate::monkey::{engine, script::{TokenProto, command::DynScript, user::{Init, TakeSnap, UserBuilder, UserCommandDispatcher, fallback}}};
+use crate::monkey::engine;
+use crate::monkey::script::{
+    TokenProto,
+    command::DynScript,
+    user::{Init, TakeSnap, UserBuilder, UserCommandDispatcher, fallback},
+};
 
 pub async fn start_script(script: anyhow::Result<DynScript>) -> anyhow::Result<()> {
-    println!("start script");
     let mut engine = engine::default_engine()?;
     let user = UserBuilder::default().build();
     let init = Init {
@@ -23,6 +27,6 @@ pub async fn start_script(script: anyhow::Result<DynScript>) -> anyhow::Result<(
             crate::monkey::sleep_until(time).await;
         }
         proto.handle_timeout(Instant::now());
-    };
+    }
     Ok(())
 }
