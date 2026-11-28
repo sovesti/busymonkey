@@ -7,6 +7,7 @@ use dioxus::prelude::*;
 use dioxus_fullstack::routing::Router;
 use dioxus_server::axum::Extension;
 
+use crate::scripts::server::DynScripts;
 use crate::{
     client::app,
     server::config::Config,
@@ -21,5 +22,6 @@ pub async fn router() -> anyhow::Result<Router> {
     Ok(dioxus::server::router(app)
         .layer(auth::auth_layer(arc.clone()))
         .layer(auth::auth_session_layer(db.clone()).await?)
-        .layer(Extension(arc.clone() as DynUsers)))
+        .layer(Extension(arc.clone() as DynUsers))
+        .layer(Extension(arc.clone() as DynScripts)))
 }
