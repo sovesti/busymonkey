@@ -25,7 +25,7 @@ fn use_start_script() -> Action<(), ()> {
     let settings = use_settings::<ScriptSettingsRegistry>();
     use_action(move || async move {
         if let Some(registry) = settings() {
-            start_script(registry().create_with_settings()).await
+            start_script(registry.create_with_settings()).await
         } else {
             Ok(())
         }

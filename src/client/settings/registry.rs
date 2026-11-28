@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 use serde_json as json;
 
 use crate::client::settings::persistence::SettingsCategory;
-use crate::monkey::model::parameters::{DynScript, ScriptFactory};
+use crate::monkey::model::parameters::ScriptFactory;
+use crate::monkey::script::DynScript;
 
 #[derive(Clone, Debug, Deserialize, Serialize, Store)]
 pub struct ScriptSettingsRegistry {

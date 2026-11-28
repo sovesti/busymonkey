@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::monkey::script::MonkeyScript;
+use crate::monkey::script::DynScript;
 
 inventory::collect!(ScriptFactory);
 
@@ -20,8 +20,6 @@ impl ScriptParametersSchema {
         self.meta.label.to_owned()
     }
 }
-
-pub type DynScript = Box<dyn MonkeyScript>;
 
 pub struct ScriptFactory {
     key: &'static str,
