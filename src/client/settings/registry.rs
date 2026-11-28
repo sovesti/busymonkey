@@ -52,7 +52,11 @@ impl ScriptSettingsRegistry {
             .find(|factory| factory.has_key(&self.chosen))
     }
 
-    fn chosen(&self) -> String {
+    pub fn select(&mut self, key: String) {
+        self.chosen = key;
+    }
+
+    pub fn chosen(&self) -> String {
         self.chosen.clone()
     }
 }

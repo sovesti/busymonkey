@@ -16,3 +16,9 @@ CREATE TABLE IF NOT EXISTS evaluated_expression(
   result TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS script(
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  permission TEXT NOT NULL
+);
