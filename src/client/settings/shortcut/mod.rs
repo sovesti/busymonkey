@@ -92,18 +92,17 @@ fn shortcut_from_event(event: &KeyboardEvent) -> Option<ShortcutKeys> {
 
     let mut recognized = false;
 
-    if let Some(symbol) = symbol {
-        if symbol.len() == 1 {
-            recognized = true;
-        }
+    if let Some(symbol) = symbol
+        && symbol.len() == 1
+    {
+        recognized = true;
     } else if code_text == "Enter" || code_text == "Space" || code_text == "Escape" {
         recognized = true;
-    } else if let Some(number) = code_text.strip_prefix("F") {
-        if let Ok(n) = number.parse::<u8>() {
-            if (1..=12).contains(&n) {
-                recognized = true;
-            }
-        }
+    } else if let Some(number) = code_text.strip_prefix("F")
+        && let Ok(n) = number.parse::<u8>()
+        && (1..=12).contains(&n)
+    {
+        recognized = true;
     }
 
     if !recognized {
