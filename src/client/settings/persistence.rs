@@ -6,10 +6,6 @@ use serde::{Serialize, de::DeserializeOwned};
 
 use crate::client;
 
-pub fn provide_settings<T: SettingsCategory>() {
-    provide_root_context(use_resource(T::load_or_default));
-}
-
 pub fn use_settings<T: SettingsCategory>() -> Resource<Store<T>> {
     use_context::<Resource<Store<T>>>()
 }

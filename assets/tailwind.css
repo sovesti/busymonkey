@@ -232,14 +232,11 @@
   .table {
     display: table;
   }
-  .h-\[72px\] {
-    height: 72px;
-  }
   .min-h-0 {
     min-height: calc(var(--spacing) * 0);
   }
-  .w-1 {
-    width: calc(var(--spacing) * 1);
+  .min-h-screen {
+    min-height: 100vh;
   }
   .w-1\/2 {
     width: calc(1/2 * 100%);
@@ -247,14 +244,8 @@
   .w-1\/8 {
     width: calc(1/8 * 100%);
   }
-  .w-3 {
-    width: calc(var(--spacing) * 3);
-  }
   .w-3\/4 {
     width: calc(3/4 * 100%);
-  }
-  .w-24 {
-    width: calc(var(--spacing) * 24);
   }
   .w-64 {
     width: calc(var(--spacing) * 64);
@@ -274,9 +265,6 @@
   .flex-1 {
     flex: 1;
   }
-  .flex-grow {
-    flex-grow: 1;
-  }
   .grow {
     flex-grow: 1;
   }
@@ -285,9 +273,6 @@
   }
   .border-collapse {
     border-collapse: collapse;
-  }
-  .resize {
-    resize: both;
   }
   .flex-col {
     flex-direction: column;
@@ -416,22 +401,6 @@
   .pb-3 {
     padding-bottom: calc(var(--spacing) * 3);
   }
-  .text-center {
-    text-align: center;
-  .text-left {
-    text-align: left;
-  }
-  .text-right {
-    text-align: right;
-  }
-  .text-lg {
-    font-size: var(--text-lg);
-    line-height: var(--tw-leading, var(--text-lg--line-height));
-  }
-  .text-xl {
-    font-size: var(--text-xl);
-    line-height: var(--tw-leading, var(--text-xl--line-height));
-  }
   .text-left {
     text-align: left;
   }
@@ -470,24 +439,9 @@
     color: var(--dark, oklch(0.88 0.04 272.28))
         var(--light, oklch(0.44 0.04 279.33));
   }
-  .underline {
-    text-decoration-line: underline;
-  }
   .shadow-md {
     --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-  .outline {
-    outline-style: var(--tw-outline-style);
-    outline-width: 1px;
-  }
-  .hover\:bg-surface0 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--dark, oklch(0.32 0.03 281.98))
-        var(--light, oklch(0.86 0.01 268.48));
-      }
-    }
   }
   .hover\:bg-surface0 {
     &:hover {

@@ -76,15 +76,3 @@ impl Default for ShortcutsRegistry {
         }
     }
 }
-
-// impl SettingsCategory for ShortcutsRegistry {
-//     fn name() -> String {
-//         "shortcuts".to_owned()
-//     }
-// }
-
-pub fn use_shortcut_keys(action: ShortcutAction) -> Memo<Option<ShortcutKeys>> {
-    // let settings = use_settings::<ShortcutsRegistry>();
-    let settings = use_resource(|| async { use_store(ShortcutsRegistry::default) });
-    use_memo(move || (*settings.read())?.load_or_default(action))
-}

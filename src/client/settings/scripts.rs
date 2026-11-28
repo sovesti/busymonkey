@@ -5,7 +5,9 @@ use super::registry::ScriptSettingsRegistry;
 use super::{duration, float};
 use crate::client::components::{Button, ButtonVariant};
 use crate::client::settings::registry::ScriptSettingsRegistryStoreImplExt;
-use crate::client::settings::shortcut::registry::{ShortcutAction, use_shortcut_keys};
+use crate::client::settings::shortcut::registry::{
+    ShortcutAction, ShortcutsRegistry, ShortcutsRegistryStoreImplExt,
+};
 use crate::monkey::model::parameters::{Parameter, ParameterSchema};
 
 #[component]
@@ -48,9 +50,9 @@ fn ScriptTitle(registry: Store<ScriptSettingsRegistry>) -> Element {
 
 #[component]
 fn ScriptHint() -> Element {
-    let keys = use_shortcut_keys(ShortcutAction::ToggleScript);
+    let keys = use_store(ShortcutsRegistry::default).load_or_default(ShortcutAction::ToggleScript);
     rsx! {
-        if let Some(keys) = keys() {
+        if let Some(keys) = keys {
             p { class: "text-overlay2", "Hint: press {keys} to toggle script" }
         }
     }
