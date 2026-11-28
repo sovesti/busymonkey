@@ -5,10 +5,9 @@ use dioxus::prelude::*;
 use rand::{RngExt, rngs::SmallRng};
 use serde::{Deserialize, Serialize};
 
-use crate::monkey::{
-    model::parameters::{Parameter, ParameterSchema, ScriptFactory},
-    script::{DynScript, command::{Command, MicroCommand}},
-};
+use crate::monkey::model::parameters::{Parameter, ParameterSchema, ScriptFactory, ScriptMeta};
+use crate::monkey::script::DynScript;
+use crate::monkey::script::command::{Command, MicroCommand};
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Props)]
 struct SmoothWanderCfg {
@@ -82,9 +81,12 @@ impl Iterator for SmoothWanderScript {
 
 fn get_f64_key(key: &str, value: &serde_json::Value) -> anyhow::Result<f64> {
     value
-        .get(key).ok_or(anyhow!("No {key} value"))?
-        .as_str().ok_or(anyhow!("{key} is not string"))?
-        .parse::<f64>().context("Value is not correct f64")
+        .get(key)
+        .ok_or(anyhow!("No {key} value"))?
+        .as_str()
+        .ok_or(anyhow!("{key} is not string"))?
+        .parse::<f64>()
+        .context("Value is not correct f64")
 }
 
 fn parse_cfg(value: serde_json::Value) -> anyhow::Result<SmoothWanderCfg> {
@@ -102,7 +104,8 @@ fn smooth_wander(value: serde_json::Value) -> anyhow::Result<DynScript> {
 }
 
 inventory::submit! {
-    ScriptFactory::new("dummy", || {
+    ScriptFactory::new_meta("dummy",
+        || { ScriptMeta::new("Smooth mouse moving") }, || {
         vec![
             Parameter::new(
                 "x",
