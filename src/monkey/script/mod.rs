@@ -2,6 +2,8 @@ use crate::monkey::{Instant, model::Token};
 
 mod command;
 #[cfg(feature = "desktop")]
+pub(crate) mod jitter;
+#[cfg(feature = "desktop")]
 mod state;
 #[cfg(feature = "desktop")]
 mod user;
