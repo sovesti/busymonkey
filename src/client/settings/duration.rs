@@ -52,7 +52,9 @@ fn from_millis(millis: u64) -> Duration {
 }
 
 fn format_time(duration: Duration) -> String {
-    if duration.as_secs() > 0 {
+    if duration.as_secs() >= 60 {
+        format!("{:.2} m", (duration.as_millis() as f64) / 60000.0)
+    } else if duration.as_secs() > 0 {
         format!("{:.2} s", (duration.as_millis() as f64) / 1000.0)
     } else {
         format!("{} ms", duration.as_millis())

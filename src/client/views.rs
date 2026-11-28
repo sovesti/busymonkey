@@ -46,6 +46,7 @@ fn ViewButton(view: View, mut current: Signal<View>) -> Element {
             alignment: ButtonAlignment::Left,
             size: if ctx.open() { ButtonSize::Default } else { ButtonSize::Icon },
             onclick: move |_| current.set(view),
+            disabled: view == current(),
             Icon { view }
             if ctx.open() {
                 span { "{view}" }

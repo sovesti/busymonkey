@@ -297,7 +297,7 @@ pub fn SidebarInset(
 ) -> Element {
     let base = attributes!(main {
         class: Styles::dx_sidebar_inset,
-        class: "p-4 items-center",
+        class: "p-4",
         "data-slot": "sidebar-inset",
     });
     let merged = merge_attributes(vec![base, attributes]);

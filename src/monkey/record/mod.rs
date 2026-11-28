@@ -1,6 +1,7 @@
 mod keycodes;
 #[cfg(feature = "desktop")]
 pub(crate) mod rdev;
+pub(crate) mod script;
 pub(crate) mod storage;
 #[cfg(test)]
 mod test;

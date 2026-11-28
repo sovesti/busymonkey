@@ -1,7 +1,15 @@
+pub(crate) mod persistence;
+pub(crate) mod preview;
+pub(crate) mod script;
+
 use dioxus::prelude::*;
 use dioxus_icons::lucide::{Keyboard, Mouse, MousePointer2, MousePointerClick};
 
 use crate::client::components::{Button, ButtonVariant};
+use crate::client::settings::persistence::{use_save_settings, use_settings};
+use crate::client::templates::persistence::{
+    PersistentRecordedScript, PersistentRecordedScriptStoreExt,
+};
 use crate::monkey::model::{TimedToken, Token};
 use crate::monkey::record::storage::linear::{Linear, LinearStoreExt};
 use crate::monkey::record::storage::stoppable::{Stoppable, StoppableStoreExt};
@@ -12,14 +20,30 @@ use crate::monkey::record::use_recording;
 pub fn TemplatesView() -> Element {
     let mut running = use_signal(|| true);
     let storage = use_storage(running.into());
+    let mut recorded = use_settings::<PersistentRecordedScript>();
+    let mut save = use_save_settings::<PersistentRecordedScript>();
     use_recording(storage);
     rsx! {
         div { class: "flex flex-col min-h-0 items-center m-1",
-            Button {
-                variant: ButtonVariant::Solid,
-                disabled: !running(),
-                onclick: move |_| running.set(false),
-                "Stop"
+            div {
+                class: "flex flex-row justify-end m-1 gap-4",
+                Button {
+                    variant: ButtonVariant::Ghost,
+                    disabled: !running(),
+                    onclick: move |_| running.set(false),
+                    "Stop"
+                }
+                Button {
+                    variant: ButtonVariant::Solid,
+                    disabled: running(),
+                    onclick: move |_| {
+                        if let Some(recorded) = recorded() {
+                            recorded.tokens().write().as_mut().extend_from_slice(storage.delegate().delegate().all()().into_iter().map(|t| t.token().clone()).collect::<Vec<_>>().as_slice());
+                            save.call();
+                        }
+                    },
+                    "Save"
+                }
             }
             TokensTable { store: storage.delegate().delegate().all() }
         }
@@ -54,7 +78,7 @@ fn TokensTable(store: Store<Vec<TimedToken>>) -> Element {
 fn TokenRow(token: ReadSignal<TimedToken>) -> Element {
     rsx! {
         td { class: "m-1 p-1 text-overlay0",
-            TokenIcon { token }
+            TokenIcon { token: token.map(TimedToken::token) }
         }
         td { class: "m-1 p-1", "{token}" }
         td { class: "m-1 p-1 text-left", {token.read().format_time()} }
@@ -66,8 +90,8 @@ fn use_storage(stopped: ReadSignal<bool>) -> Store<Stoppable<TruncateMoves<Linea
 }
 
 #[component]
-fn TokenIcon(token: ReadSignal<TimedToken>) -> Element {
-    match token.read().token() {
+pub fn TokenIcon(token: ReadSignal<Token>) -> Element {
+    match token() {
         Token::Key(_, _) => rsx! {
             Keyboard { size: 20 }
         },

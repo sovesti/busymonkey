@@ -55,6 +55,10 @@ impl<Lens> Store<ScriptSettingsRegistry, Lens> {
             .into_iter()
             .find(|factory| factory.has_key(self.chosen().read().as_str()))
     }
+
+    fn choose(&mut self, key: String) {
+        self.chosen().set(key);
+    }
 }
 
 impl Default for ScriptSettingsRegistry {

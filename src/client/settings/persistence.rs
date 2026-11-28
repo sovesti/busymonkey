@@ -14,14 +14,18 @@ pub fn use_save_settings<T: SettingsCategory>() -> Action<(), ()> {
     let settings = use_settings::<T>();
     use_action(move || async move {
         if let Some(ready) = settings().map(|ready| ready()) {
-            ready.try_save().await?;
+            ready.try_save().await.map_err(|err| {
+                consume_toast().error(format!("Problems with saving: {err}"), two_secs());
+                err
+            })?;
         }
-        consume_toast().info(
-            "Saved successfully".to_owned(),
-            ToastOptions::new().duration(Duration::from_secs(2)),
-        );
+        consume_toast().info("Saved successfully".to_owned(), two_secs());
         Ok::<(), anyhow::Error>(())
     })
+}
+
+fn two_secs() -> ToastOptions {
+    ToastOptions::new().duration(Duration::from_secs(2))
 }
 
 pub trait SettingsCategory:

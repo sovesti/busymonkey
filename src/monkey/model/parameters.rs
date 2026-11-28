@@ -66,6 +66,14 @@ impl ScriptFactory {
     pub fn create_from_data(&self, data: serde_json::Value) -> anyhow::Result<DynScript> {
         (self.create)(data)
     }
+
+    pub fn key(&self) -> String {
+        self.key.to_owned()
+    }
+
+    pub fn label(&self) -> String {
+        (self.meta)().label
+    }
 }
 
 #[derive(Clone, Default, PartialEq)]

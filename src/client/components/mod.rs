@@ -1,10 +1,12 @@
 mod button;
+mod select;
 mod sheet;
 mod sidebar;
 mod slider;
 mod tabs;
 mod toast;
 pub use button::*;
+pub use select::*;
 pub use sidebar::*;
 pub use slider::*;
 pub use tabs::*;

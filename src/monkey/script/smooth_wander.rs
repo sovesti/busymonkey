@@ -109,22 +109,22 @@ inventory::submit! {
         vec![
             Parameter::new(
                 "x",
-                "Coordinate of top left corner of wander area, px",
+                "Top left corner x",
                 ParameterSchema::float(0.0, 1920.0),
             ),
             Parameter::new(
                 "y",
-                "Coordinate of top left corner of wander area, px",
+                "Top left corner y",
                 ParameterSchema::float(0.0, 1080.0),
             ),
             Parameter::new(
                 "w",
-                "Wander area width, px",
+                "Wander area width",
                 ParameterSchema::float(0.0, 1920.0),
             ),
             Parameter::new(
                 "h",
-                "Wander area height, px",
+                "Wander area height",
                 ParameterSchema::float(0.0, 1080.0),
             ),
             Parameter::new(
